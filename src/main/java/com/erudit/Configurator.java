@@ -12,8 +12,7 @@ import javax.servlet.annotation.WebListener;
  * Created by zakharov_ga on 09.02.2016.
  */
 @WebListener
-public class Configurator implements ServletContextListener
-{
+public class Configurator implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event)
     {

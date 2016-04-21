@@ -536,8 +536,6 @@ $(document).ready(function () {
                 $makeMoveBtn.addClass('disabled');
                 $changeLettersBtn.removeClass('disabled');
             }
-
-            console.log(abortMove);
         }
     });
 });
