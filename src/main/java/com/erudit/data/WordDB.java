@@ -1,6 +1,6 @@
 package com.erudit.data;
 
-import com.erudit.Game;
+import com.erudit.EruditGame;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +26,7 @@ public class WordDB {
             rs = ps.executeQuery();
             while(rs.next()) {
                 String word = rs.getString("word");
-                Game.addWord(word);
+                EruditGame.addWord(word);
             }
             return true;
         } catch (SQLException e) {

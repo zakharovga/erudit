@@ -17,11 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Game {
 
-    public static Set<String> dictionary = new HashSet<>();
-
     private static final AtomicLong gameIdSequence = new AtomicLong(1L);
     public static ObjectMapper mapper = new ObjectMapper();
-    private static Map<String, String> DICTIONARY = new HashMap<>();
 
     private final long gameId;
     private volatile GameStatus gameStatus;
@@ -43,18 +40,6 @@ public class Game {
         game.setGameStatus(GameStatus.PENDING);
         StartEndpoint.addPendingGame(id, game);
         return game;
-    }
-
-    public static void addWord(String word, String description) {
-        DICTIONARY.put(word, description);
-    }
-
-    public static void addWord(String word) {
-        DICTIONARY.put(word, null);
-    }
-
-    public static boolean checkWord(String word) {
-        return DICTIONARY.containsKey(word.toLowerCase());
     }
 
     public List<Player> getPlayers() {

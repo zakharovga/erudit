@@ -9,6 +9,7 @@ import java.util.*;
  */
 public class EruditGame {
 
+    private static Map<String, String> DICTIONARY = new HashMap<>();
     private List<Player> players;
     private final Letter[][] board = new Letter[15][15];
     private final Map<Letter, Integer> letterContainer = new HashMap<>();
@@ -18,8 +19,16 @@ public class EruditGame {
     private Set<Move> madeMoves;
     private Map<Player, Integer> skippedTurns;
 
-    private boolean checkWord(String word) {
-        return Game.dictionary.contains(word);
+    public static void addWord(String word, String description) {
+        DICTIONARY.put(word, description);
+    }
+
+    public static void addWord(String word) {
+        DICTIONARY.put(word, null);
+    }
+
+    public static boolean checkWord(String word) {
+        return DICTIONARY.containsKey(word.toLowerCase());
     }
 
     // увеличивает счетчик пропущенных ходов
@@ -110,7 +119,7 @@ public class EruditGame {
                             throw new WordAlreadyUsedException(verticalWord.getWord());
                         }
                         else {
-                            if(checkWord(verticalWord.getWord()))
+                            if(EruditGame.checkWord(verticalWord.getWord()))
                                 usedWords.add(verticalWord.getWord());
                             else
                                 throw new NoSuchWordException(verticalWord.getWord());
@@ -129,7 +138,7 @@ public class EruditGame {
                             throw new WordAlreadyUsedException(horizontalWord.getWord());
                         }
                         else {
-                            if(checkWord(horizontalWord.getWord()))
+                            if(EruditGame.checkWord(horizontalWord.getWord()))
                                 usedWords.add(horizontalWord.getWord());
                             else
                                 throw new NoSuchWordException(horizontalWord.getWord());
@@ -464,7 +473,7 @@ public class EruditGame {
         }
 
         private boolean checkWord(String word) {
-            return Game.checkWord(word);
+            return checkWord(word);
         }
 
         public int computePoints() {
