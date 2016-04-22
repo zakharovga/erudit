@@ -280,7 +280,7 @@ $(document).ready(function () {
             }
             return;
         }
-        if(message.action == 'gameOver') {
+        if(message.action === 'gameOver') {
             var gameResult = message.gameResult;
 
             var $h4 = $('<h4/>');
@@ -301,6 +301,9 @@ $(document).ready(function () {
             }
 
             $('#modal-gameover').modal('show');
+        }
+        if(message.action === 'WRONG_FIRST_MOVE') {
+            console.log(message);
         }
     };
 

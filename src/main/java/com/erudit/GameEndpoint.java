@@ -152,18 +152,9 @@ public class GameEndpoint {
 
                         game.sendJsonMessage(session, playerMessage);
                         game.sendJsonMessageToOpponents(session, opponentMessage);
-                    } catch (FirstMoveException e) {
-                        e.printStackTrace();
-                    } catch (IncorrectMoveException e) {
-                        e.printStackTrace();
-                    } catch (WordUsedTwiceException e) {
-                        e.printStackTrace();
-                    } catch (WordAlreadyUsedException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchWordException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (GameException e) {
+                        Message message = ExceptionMessageFactory.getMessage(e);
+                        game.sendJsonMessage(session, message);
                     }
                 }
             }

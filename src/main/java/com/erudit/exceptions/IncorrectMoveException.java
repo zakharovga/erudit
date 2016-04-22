@@ -7,9 +7,9 @@ import java.util.Set;
 /**
  * Created by zakharov_ga on 13.04.2016.
  */
-public class IncorrectMoveException extends Exception {
+public class IncorrectMoveException extends GameException {
 
-    Set<Move> incorrectMoves;
+    private Set<Move> incorrectMoves;
 
     public IncorrectMoveException(Set<Move> incorrectMoves) {
         super("Буквы выставлены некорректно!");

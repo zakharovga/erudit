@@ -7,8 +7,7 @@ public abstract class Message {
 
     private String action;
 
-    public Message() {
-    }
+    public Message() { }
 
     public Message(String action) {
         this.action = action;

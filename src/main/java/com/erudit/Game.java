@@ -1,5 +1,6 @@
 package com.erudit;
 
+import com.erudit.exceptions.GameException;
 import com.erudit.messages.GameOverMessage;
 import com.erudit.messages.TimeOverMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -223,16 +224,14 @@ public class Game {
 
     public List<Letter> changeLetters(Player player, List<Letter> letters) {
         List<Letter> result = eruditGame.changeLetters(player, letters);
-//        nextMove();
         timer.start();
         return result;
     }
 
-    public Map<String, Integer> computeMove(List<Move> moves, Player player) throws Exception {
+    public Map<String, Integer> computeMove(List<Move> moves, Player player) throws GameException {
         synchronized(lock) {
             Map<String, Integer> result = eruditGame.computeMove(moves, player);
             resetSkippedTurns();
-//            nextMove();
             timer.start();
             return result;
         }

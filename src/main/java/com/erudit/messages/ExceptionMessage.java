@@ -5,4 +5,18 @@ package com.erudit.messages;
  */
 public class ExceptionMessage extends Message {
 
+    private String message;
+
+    public ExceptionMessage(String action, String message) {
+        super(action);
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
