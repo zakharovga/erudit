@@ -7,6 +7,7 @@ public class WordUsedTwiceException extends GameException {
     private String word;
 
     public WordUsedTwiceException(String word) {
+        super("Вы попытались использовать слово дважды:");
         this.word = word;
     }
 

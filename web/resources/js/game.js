@@ -16,8 +16,11 @@ $(document).ready(function () {
     var $modalError = $("#modal-error");
     var $modalErrorBody = $("#modal-error-body");
     var $modalWaiting = $('#modal-waiting');
+    var $modalInfo = $('#modal-info');
 
     var $gameCells = $('.game-cell');
+    var $letterContainer = $('.letter-container>div');
+    var $droppable = $gameCells.add($letterContainer);
     var $makeMoveBtn = $('#make-move-btn');
     var $changeLettersBtn = $('#change-letters-btn');
     var $changeLettersDiv = $('#change-letters-div');
@@ -181,6 +184,7 @@ $(document).ready(function () {
             var $moveMade = $('.move-made');
             $moveMade.draggable('destroy');
             $moveMade.removeClass('move-made letter-line');
+            move = [];
             abortMove = [];
             moveType = '';
 
@@ -241,6 +245,8 @@ $(document).ready(function () {
         }
         if (message.action == 'timeOver') {
 
+            console.log("time over");
+
             var beforeToggle = myTurn;
 
             toggleTurn(message.nextMove);
@@ -248,12 +254,16 @@ $(document).ready(function () {
             timer.stop();
             timer.start();
 
+            $modalInfo.modal('hide');
+
             if (myTurn) {
                 $changeLettersBtn.removeClass('disabled');
                 $gameCells.droppable('enable');
             }
             else {
                 if (beforeToggle) {
+                    move = [];
+                    $modalInfo.modal('hide');
                     $changeLettersBtn.addClass('disabled');
                     $gameCells.droppable('disable');
                     if (moveType === 'CHANGE_LETTERS') {
@@ -272,7 +282,6 @@ $(document).ready(function () {
                             moveAnimate(abortMove[j].$letter, abortMove[j].$initialParent);
                         }
                         $makeMoveBtn.addClass('disabled');
-                        move = [];
                         abortMove = [];
                         $('.move-made').removeClass('move-made');
                     }
@@ -301,9 +310,62 @@ $(document).ready(function () {
             }
 
             $('#modal-gameover').modal('show');
+            return;
         }
         if(message.action === 'WRONG_FIRST_MOVE') {
-            console.log(message);
+
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text(' Неверный первый ход!');
+            $('#modal-info-body-h5').text(message.message);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'INCORRECT_MOVES') {
+
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text(' Буквы выставлены некорректно!');
+
+            var info = message.message + ' ';
+            for(var i = 0; i < message.incorrectMoves.length; i++) {
+                info += (message.incorrectMoves[i].letter.letter + ', ');
+            }
+            info = info.slice(0, -2);
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'NO_SUCH_WORD') {
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text('Слово отсутствует в словаре!');
+
+            var info = message.message + ' ' + message.word;
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'WORD_ALREADY_USED' || message.action === 'WORD_USED_TWICE') {
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text('Повторное использование слова');
+
+            var info = message.message + ' ' + message.word;
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
         }
     };
 
@@ -374,15 +436,16 @@ $(document).ready(function () {
 
     var makeMove = function () {
         if (webSocket != null) {
+
             $makeMoveBtn.addClass('disabled');
 
             webSocket.send(JSON.stringify({action: "playerMadeMove", move: move}));
-            move = [];
 
             var $moveMade = $('.move-made');
-            $moveMade.draggable('disable');
+            //$moveMade.draggable('disable');
 
             $gameCells.droppable('disable');
+            $letterContainer.droppable('disable');
         }
     };
 
@@ -462,7 +525,7 @@ $(document).ready(function () {
     $sendChangedLettersBtn.click(sendSelectedLetters);
     $cancelChangingLettersBtn.click(cancelSelectingLetters);
 
-    $('.game-cell, .letter-container>div').droppable({
+    $droppable.droppable({
         accept: function (el) {
             return $(this).children('.letter-div').length === 0 && el.hasClass('letter-div');
         },
@@ -514,7 +577,7 @@ $(document).ready(function () {
                 };
                 move.push(cellWithLetter);
             }
-            var addToAbortMove;
+            var addToAbortMove = true;
             for (var i = 0; i < abortMove.length; i++) {
                 if (abortMove[i].$letter === $draggable) {
                     addToAbortMove = false;
@@ -525,7 +588,7 @@ $(document).ready(function () {
                     break;
                 }
             }
-            if (!addToAbortMove) {
+            if (addToAbortMove) {
                 abortMove.push({
                     $letter: $draggable,
                     $initialParent: $parent

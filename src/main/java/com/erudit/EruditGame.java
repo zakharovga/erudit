@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class EruditGame {
 
-    private static Map<String, String> DICTIONARY = new HashMap<>();
+    private final static Map<String, String> DICTIONARY = new HashMap<>();
     private List<Player> players;
     private final Letter[][] board = new Letter[15][15];
     private final Map<Letter, Integer> letterContainer = new HashMap<>();
@@ -119,9 +119,7 @@ public class EruditGame {
                             throw new WordAlreadyUsedException(verticalWord.getWord());
                         }
                         else {
-                            if(EruditGame.checkWord(verticalWord.getWord()))
-                                usedWords.add(verticalWord.getWord());
-                            else
+                            if(!EruditGame.checkWord(verticalWord.getWord()))
                                 throw new NoSuchWordException(verticalWord.getWord());
                         }
                     }
@@ -138,9 +136,7 @@ public class EruditGame {
                             throw new WordAlreadyUsedException(horizontalWord.getWord());
                         }
                         else {
-                            if(EruditGame.checkWord(horizontalWord.getWord()))
-                                usedWords.add(horizontalWord.getWord());
-                            else
+                            if(!EruditGame.checkWord(horizontalWord.getWord()))
                                 throw new NoSuchWordException(horizontalWord.getWord());
                         }
                     }
@@ -152,13 +148,15 @@ public class EruditGame {
 
         Map<String, Integer> result = new HashMap<>();
         for (Word word : boardWords) {
+            String stringWord = word.getWord();
+            usedWords.add(stringWord);
             word.computePoints();
-            player.addPoints(word.getPoints());
-            result.put(word.getWord(), word.getPoints());
+            int points = word.getPoints();
+            player.addPoints(points);
+            result.put(stringWord, points);
         }
 
         giveLettersToPlayer(player, moves.size());
-//        this.nextMove();
 
         return result;
     }
@@ -450,6 +448,14 @@ public class EruditGame {
 
     public List<Player> getPlayers() {
         return players;
+    }
+
+    public void cancelMoves() {
+        for(Move move : madeMoves) {
+            int row = move.getRow();
+            int column = move.getColumn();
+            board[row][column] = null;
+        }
     }
 
     public static class Word {

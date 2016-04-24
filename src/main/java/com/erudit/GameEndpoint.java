@@ -106,24 +106,19 @@ public class GameEndpoint {
                 Player player = game.getPlayer(session);
                 if (player == null)
                     return;
-
-
-                if (game.checkTurnAndReset(session)) {
-
+                if (!game.checkTurn(session)) {
+                    return;
                 }
-
-
-//                Player nextMove = game.getNextMove();
-//                if (player != nextMove) {
-//                    return;
-//                }
                 List<Move> moves = clientMessage.getMove();
                 if (moves == null || moves.size() == 0) {
                     if (game.skipTurn(player)) {
                         game.gameOver();
                     }
+
                     List<Letter> changedLetters = clientMessage.getLetters();
                     if (changedLetters != null && changedLetters.size() != 0) {
+
+                        game.changeTurn();
 
                         List<Letter> newLetters = game.changeLetters(player, changedLetters);
 
@@ -137,15 +132,7 @@ public class GameEndpoint {
                     try {
                         Map<String, Integer> words = game.computeMove(moves, player);
 
-//                        EruditGame.Letter[] usedLetters = new EruditGame.Letter[moves.length];
-//                        List<Letter> usedLetters = new ArrayList<>();
-//
-//                        for (Move move : moves) {
-//                            usedLetters.add(move.getLetter());
-//                        }
-//                        for(int i = 0; i < moves.length; i++) {
-//                            usedLetters[i] = moves[i].getLetter();
-//                        }
+                        game.changeTurn();
 
                         Message playerMessage = new PlayerMadeMoveMessage(game, player, moves, words);
                         Message opponentMessage = new OpponentMadeMoveMessage(game, player, moves, words);

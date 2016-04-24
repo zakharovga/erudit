@@ -202,15 +202,31 @@ public class Game {
         return checkActivePlayers();
     }
 
-    public boolean checkTurnAndReset(Session session) {
+//    public boolean checkTurnAndReset(Session session) {
+//        synchronized(lock) {
+//            Player player = sessions.get(session);
+//            Player nextMove = getNextMove();
+//            if (player == nextMove) {
+//                nextMove();
+//                timer.start();
+//            }
+//            return player == nextMove;
+//        }
+//    }
+
+
+    public void changeTurn() {
+        synchronized(lock) {
+            nextMove();
+            timer.start();
+        }
+    }
+
+    public boolean checkTurn(Session session) {
         synchronized(lock) {
             Player player = sessions.get(session);
-            Player nextMove = getNextMove();
-            if (player == nextMove) {
-                nextMove();
-                timer.start();
-            }
-            return player == nextMove;
+
+            return player == getNextMove();
         }
     }
 
@@ -230,10 +246,16 @@ public class Game {
 
     public Map<String, Integer> computeMove(List<Move> moves, Player player) throws GameException {
         synchronized(lock) {
-            Map<String, Integer> result = eruditGame.computeMove(moves, player);
-            resetSkippedTurns();
-            timer.start();
-            return result;
+            try {
+                Map<String, Integer> result = eruditGame.computeMove(moves, player);
+                resetSkippedTurns();
+                timer.start();
+                return result;
+            }
+            catch(GameException e) {
+                eruditGame.cancelMoves();
+                throw e;
+            }
         }
     }
 
@@ -398,6 +420,8 @@ public class Game {
                         else {
                             String playerName = player.getUsername();
                             String nextMove = nextMove().getUsername();
+
+                            System.out.println("time over");
 
                             sendJsonMessage(new TimeOverMessage(playerName, nextMove));
                         }

@@ -8,6 +8,7 @@ public class WordAlreadyUsedException extends GameException {
     private String word;
 
     public WordAlreadyUsedException(String word) {
+        super("Слово уже использовано:");
         this.word = word;
     }
 

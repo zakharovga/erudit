@@ -8,7 +8,7 @@ public class NoSuchWordException extends GameException {
     private String word;
 
     public NoSuchWordException(String word) {
-        super("Слово не найдено в словаре!");
+        super("Слово не найдено в словаре:");
         this.word = word;
     }
 

@@ -496,7 +496,7 @@
             </div>
         </div>
     </div>
-    <div id="modal-gameover" class="modal fade">
+    <div id="modal-gameover" class="modal fade" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div id="modal-gameover-header" class="modal-header">
@@ -516,22 +516,20 @@
             </div>
         </div>
     </div>
-    <div id="modal-gameover" class="modal fade">
+    <div id="modal-info" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div id="modal-gameover-header" class="modal-header">
-                    <h3><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Игра окончена</h3>
+                <div id="modal-info-header" class="modal-header">
+                    <h3>
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        <span id="modal-info-header-span"></span>
+                    </h3>
                 </div>
-                <div class="modal-body" id="modal-gameover-body">
-                    <div id="gameover-info"></div>
-                    <br>
-
-                    <div>
-                        <ul id="gameover-ul" class="list-group"></ul>
-                    </div>
+                <div class="modal-body" id="modal-info-body">
+                    <h5 id="modal-info-body-h5"></h5>
                 </div>
-                <div id="modal-gameover-footer" class="modal-footer">
-                    <button id="gameover-btn" class="btn btn-primary">Закрыть</button>
+                <div id="modal-info-footer" class="modal-footer">
+                    <button id="info-btn" class="btn btn-primary" data-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>

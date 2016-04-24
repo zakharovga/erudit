@@ -12,7 +12,7 @@ public class IncorrectMoveException extends GameException {
     private Set<Move> incorrectMoves;
 
     public IncorrectMoveException(Set<Move> incorrectMoves) {
-        super("Буквы выставлены некорректно!");
+        super("Следующие буквы выставлены не по правилам:");
         this.incorrectMoves = incorrectMoves;
     }
 
