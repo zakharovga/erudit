@@ -25,18 +25,6 @@ public class StartEndpoint {
     // игры, ожидающие начала
     public static final Map<Long, Game> pendingGames = new ConcurrentHashMap<>();
 
-    public static Map<Long, Game> getPendingGames() {
-        return pendingGames;
-    }
-
-    public static void addPendingGame(long gameId, Game game) {
-        pendingGames.put(gameId, game);
-    }
-
-    public static void removePendingGame(long gameId) {
-        pendingGames.remove(gameId);
-    }
-
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
 
@@ -74,92 +62,39 @@ public class StartEndpoint {
         game.addHttpSession(httpSessionId, creator);
         game.setCreator(user.getUsername());
 
-        synchronized(GameEndpoint.LOCK) {
-            Game oldGame = GameEndpoint.getGame(username);
-            if (oldGame != null) {
-                Session oldSession = oldGame.getSession(username);
-                try {
-                    oldSession.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                            "Соединение разорвано, т.к. Вы начали новую игру"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            GameEndpoint.addGame(gameId, game);
-            GameEndpoint.addSession(session, game);
-            GameEndpoint.addUsername(username, game);
+        Game oldGame = GameEndpoint.getGame(username);
+        if (oldGame != null) {
+            Session oldSession = oldGame.getSession(username);
+            if (oldSession != null)
+                game.closeSession(oldSession, new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                        "Соединение разорвано, т.к. Вы начали новую игру"));
         }
+        GameEndpoint.addGame(gameId, game);
+        GameEndpoint.addSession(session, game);
+        GameEndpoint.addUsername(username, game);
     }
 
-    private void joinGame(Session session, String sessionId, User user) {
+    private void joinGame(Session session, String httpSessionId, User user) {
         List<String> gameIdList = session.getRequestParameterMap().get("gameid");
 
-        String username = user.getUsername();
         long gameId = Long.parseLong(gameIdList.get(0));
 
-        synchronized(GameEndpoint.LOCK) {
-            Game game = GameEndpoint.getGame(gameId);
-            if(game == null) {
-                try {
-                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                            "Эта игра больше не существует"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Game game = GameEndpoint.getGame(gameId);
+        if (game == null) {
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                        "Эта игра больше не существует"));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            else if(game.getGameStatus() == GameStatus.ACTIVE) {/////// gameStatus - volatile
-                try {
-                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                            "Эта игра уже началась"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else if(game.size() > 3){
-                try {
-                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                            "В этой игре уже максимум игроков"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else if(game.getSession(username) != null) {
-                try {
-                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                            "Вы уже присоединились к этой игре"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                Game oldGame = GameEndpoint.getGame(username);
-                if(oldGame != null) {
-                    Session oldSession = oldGame.getSession(username);
-                    try {
-                        oldSession.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                                "Соединение разорвано, т.к. Вы начали новую игру"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                Player joiner = new Player(user);
-                game.addSession(session, joiner);
-                game.addHttpSession(sessionId, joiner);
-
-                GameEndpoint.addUsername(username, game);
-                GameEndpoint.addSession(session, game);
-
-                PlayerJoinedMessage playerJoinedMessage = new PlayerJoinedMessage(game, joiner);
-
-                game.sendJsonMessageToOpponents(session, new OpponentJoinedMessage(user));
-                game.sendJsonMessage(session, playerJoinedMessage);
-            }
+        } else {
+            game.joinPlayer(session, httpSessionId, user);
         }
     }
 
     @OnClose
     public void onClose(Session session) {
+        System.out.println("startpoint");
         closeSession(session);
     }
 
@@ -183,7 +118,7 @@ public class StartEndpoint {
                 return;
 
             boolean ready = clientMessage.isReady();
-            synchronized (GameEndpoint.LOCK) {
+//            synchronized (GameEndpoint.LOCK) {
                 if(game.getGameStatus() != GameStatus.PENDING)
                     return;
                 if (ready)
@@ -198,7 +133,7 @@ public class StartEndpoint {
                 else {
                     game.sendJsonMessageToOpponents(session, new OpponentReadyMessage(username, ready));
                 }
-            }
+//            }
         }
     }
 
@@ -218,6 +153,7 @@ public class StartEndpoint {
 
     private void closeSession(Session session) {
 
+
         Game game = GameEndpoint.getGame(session);
         if (game == null)
             return;
@@ -225,11 +161,12 @@ public class StartEndpoint {
         long gameId = game.getGameId();
         String username = game.getPlayer(session).getUsername();
 
-        synchronized(GameEndpoint.LOCK) {
-            GameEndpoint.removeUsername(username);
+//        synchronized(GameEndpoint.LOCK) {
+
             game.removeSession(session);
 
             if (game.getGameStatus() != GameStatus.REDIRECTING) {
+                GameEndpoint.removeUsername(username);
                 if (game.size() == 0) {
                     GameEndpoint.removeGame(gameId);
                     removePendingGame(gameId);
@@ -237,7 +174,7 @@ public class StartEndpoint {
                     System.out.println(game.getGameStatus());
                     game.sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
             }
-        }
+//        }
     }
 
     private void redirectGame(Game game) {
@@ -259,5 +196,17 @@ public class StartEndpoint {
             HttpSession httpSession = (HttpSession)request.getHttpSession();
             config.getUserProperties().put(HttpSession.class.getName(), httpSession);
         }
+    }
+
+    public static Map<Long, Game> getPendingGames() {
+        return pendingGames;
+    }
+
+    public static void addPendingGame(long gameId, Game game) {
+        pendingGames.put(gameId, game);
+    }
+
+    public static void removePendingGame(long gameId) {
+        pendingGames.remove(gameId);
     }
 }

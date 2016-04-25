@@ -4,6 +4,7 @@ import com.erudit.exceptions.GameException;
 import com.erudit.messages.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
 import java.io.IOException;
@@ -40,12 +41,90 @@ public class Game {
         return game;
     }
 
+    public void closeSession(Session session, CloseReason closeReason) {
+        synchronized(lock) {
+            if(session.isOpen()) {
+                try {
+                    session.close(closeReason);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void joinPlayer(Session session, String httpSessionId, User user) {
+        String username = user.getUsername();
+
+        synchronized (lock) {
+            if (getGameStatus() == GameStatus.CLOSED) {
+                try {
+                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                            "Эта игра больше не существует"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (getGameStatus() != GameStatus.PENDING) {
+                try {
+                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                            "Эта игра уже началась"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (size() > 3) {
+                try {
+                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                            "В этой игре уже максимум игроков"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (getSession(username) != null) {
+                try {
+                    session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                            "Вы уже присоединились к этой игре"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Game oldGame = GameEndpoint.getGame(username);
+                if (oldGame != null) {
+                    Session oldSession = oldGame.getSession(username);
+                    closeSession(oldSession, new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                            "Соединение разорвано, т.к. Вы начали новую игру"));
+                }
+
+                Player joiner = new Player(user);
+                addSession(session, joiner);
+                addHttpSession(httpSessionId, joiner);
+
+                GameEndpoint.addUsername(username, this);
+                GameEndpoint.addSession(session, this);
+
+
+                List<Opponent> opponents = new ArrayList<>();
+
+                for (Player opponent : getSessions().values()) {
+                    if (!opponent.getUser().getUsername().equalsIgnoreCase(joiner.getUsername())) {
+                        opponents.add(new Opponent(opponent.getUser(), opponent.getPlayerStatus() == PlayerStatus.READY));
+                    }
+                }
+
+                PlayerJoinedMessage playerJoinedMessage = new PlayerJoinedMessage(opponents);
+
+                sendJsonMessageToOpponents(session, new OpponentJoinedMessage(user));
+                sendJsonMessage(session, playerJoinedMessage);
+            }
+        }
+    }
+
     public void disconnectPlayer(Session session) {
         synchronized (lock) {
             String username = getPlayer(session).getUsername();
             GameEndpoint.removeUsername(username);
             removeSession(session);
             if (size() == 0) {
+                this.setGameStatus(GameStatus.CLOSED);
                 GameEndpoint.removeGame(gameId);
                 GameEndpoint.removeActiveGame(gameId);
                 GameEndpoint.removeSession(session);
@@ -211,14 +290,16 @@ public class Game {
 //    }
 
     public Session getSession(String username) {
-        Session session = null;
-        for (Map.Entry<Session, Player> entry : sessions.entrySet()) {
-            if (entry.getValue().getUsername().equals(username)) {
-                session = entry.getKey();
-                break;
+        synchronized(lock) {
+            Session session = null;
+            for (Map.Entry<Session, Player> entry : sessions.entrySet()) {
+                if (entry.getValue().getUsername().equals(username)) {
+                    session = entry.getKey();
+                    break;
+                }
             }
+            return session;
         }
-        return session;
     }
 
     public List<User> getOpponents(Session session) {
@@ -427,6 +508,33 @@ public class Game {
 
         public void setPoints(int points) {
             this.points = points;
+        }
+    }
+
+    public static class Opponent {
+
+        public Opponent(User user, boolean ready) {
+            this.ready = ready;
+            this.user = user;
+        }
+
+        User user;
+        boolean ready;
+
+        public boolean isReady() {
+            return ready;
+        }
+
+        public void setReady(boolean ready) {
+            this.ready = ready;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
         }
     }
 

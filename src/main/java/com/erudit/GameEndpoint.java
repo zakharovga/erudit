@@ -26,7 +26,7 @@ public class GameEndpoint {
     private static final Map<Long, Game> redirectingGames = new ConcurrentHashMap<>();
     private static Map<Session, Game> allSessions = new ConcurrentHashMap<>();
 
-    public static final Object LOCK = new Object();
+//    public static final Object LOCK = new Object();
 
 
     @OnOpen
@@ -82,10 +82,12 @@ public class GameEndpoint {
 
     @OnClose
     public void onClose(Session session) {
+        System.out.println("gamepoint");
         closeSession(session);
     }
 
     private void closeSession(Session session) {
+
 
         Game game = GameEndpoint.getGame(session);
         if (game == null)
