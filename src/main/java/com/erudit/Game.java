@@ -1,10 +1,8 @@
 package com.erudit;
 
 import com.erudit.exceptions.GameException;
-import com.erudit.messages.GameOverMessage;
-import com.erudit.messages.TimeOverMessage;
+import com.erudit.messages.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.erudit.messages.Message;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
@@ -19,7 +17,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Game {
 
     private static final AtomicLong gameIdSequence = new AtomicLong(1L);
-    public static ObjectMapper mapper = new ObjectMapper();
 
     private final long gameId;
     private volatile GameStatus gameStatus;
@@ -41,6 +38,73 @@ public class Game {
         game.setGameStatus(GameStatus.PENDING);
         StartEndpoint.addPendingGame(id, game);
         return game;
+    }
+
+    public void disconnectPlayer(Session session) {
+        synchronized (lock) {
+            String username = getPlayer(session).getUsername();
+            GameEndpoint.removeUsername(username);
+            removeSession(session);
+            if (size() == 0) {
+                GameEndpoint.removeGame(gameId);
+                GameEndpoint.removeActiveGame(gameId);
+                GameEndpoint.removeSession(session);
+            } else
+                sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
+        }
+    }
+
+    public void processChangingLetters(Session session, List<Letter> changedLetters) {
+        Player player = getPlayer(session);
+        if (player == null)
+            return;
+        synchronized (lock) {
+            if (checkTurn(session)) {
+                if (skipTurn(player)) {
+                    gameOver();
+                }
+                if (changedLetters != null && changedLetters.size() != 0) {
+                    List<Letter> newLetters = changeLetters(player, changedLetters);
+
+                    nextMove();
+                    timer.start();
+                    String nextMove = getNextMove().getUsername();
+
+                    Message playerMessage = new PlayerChangedLettersMessage(nextMove, newLetters);
+                    Message opponentMessage = new OpponentChangedLettersMessage(nextMove, player.getUser().getUsername());
+
+                    sendJsonMessage(session, playerMessage);
+                    sendJsonMessageToOpponents(session, opponentMessage);
+                }
+            }
+        }
+    }
+
+    public void processMoves(Session session, List<Move> moves) {
+        Player player = getPlayer(session);
+        if (player == null)
+            return;
+        synchronized (lock) {
+            if (checkTurn(session)) {
+                try {
+                    Map<String, Integer> words = computeMove(moves, player);
+
+                    resetSkippedTurns();
+                    nextMove();
+                    timer.start();
+                    String nextMove = getNextMove().getUsername();
+
+                    Message playerMessage = new PlayerMadeMoveMessage(nextMove, player, moves, words);
+                    Message opponentMessage = new OpponentMadeMoveMessage(nextMove, player, moves, words);
+
+                    sendJsonMessage(session, playerMessage);
+                    sendJsonMessageToOpponents(session, opponentMessage);
+                } catch (GameException e) {
+                    Message message = ExceptionMessageFactory.getMessage(e);
+                    sendJsonMessage(session, message);
+                }
+            }
+        }
     }
 
     public List<Player> getPlayers() {
@@ -214,20 +278,9 @@ public class Game {
 //        }
 //    }
 
-
-    public void changeTurn() {
-        synchronized(lock) {
-            nextMove();
-            timer.start();
-        }
-    }
-
     public boolean checkTurn(Session session) {
-        synchronized(lock) {
-            Player player = sessions.get(session);
-
-            return player == getNextMove();
-        }
+        Player player = sessions.get(session);
+        return player == getNextMove();
     }
 
     public boolean skipTurn(Player player) {
@@ -239,23 +292,17 @@ public class Game {
     }
 
     public List<Letter> changeLetters(Player player, List<Letter> letters) {
-        List<Letter> result = eruditGame.changeLetters(player, letters);
-        timer.start();
-        return result;
+        return eruditGame.changeLetters(player, letters);
     }
 
     public Map<String, Integer> computeMove(List<Move> moves, Player player) throws GameException {
-        synchronized(lock) {
-            try {
-                Map<String, Integer> result = eruditGame.computeMove(moves, player);
-                resetSkippedTurns();
-                timer.start();
-                return result;
-            }
-            catch(GameException e) {
-                eruditGame.cancelMoves();
-                throw e;
-            }
+        try {
+            return eruditGame.computeMove(moves, player);
+//                resetSkippedTurns();
+//                timer.start();
+        } catch (GameException e) {
+            eruditGame.cancelMoves();
+            throw e;
         }
     }
 
@@ -420,8 +467,6 @@ public class Game {
                         else {
                             String playerName = player.getUsername();
                             String nextMove = nextMove().getUsername();
-
-                            System.out.println("time over");
 
                             sendJsonMessage(new TimeOverMessage(playerName, nextMove));
                         }

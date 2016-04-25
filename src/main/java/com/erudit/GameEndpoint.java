@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by zakharov_ga on 30.12.2015.
  */
 @ServerEndpoint(value = "/game/{gameId}",
-                encoders = MessageCodec.class,
-                decoders = MessageCodec.class,
+                encoders = MessageEncoder.class,
+                decoders = MessageDecoder.class,
                 configurator = StartEndpoint.GetHttpSessionConfigurator.class)
 public class GameEndpoint {
 
@@ -76,19 +76,21 @@ public class GameEndpoint {
     }
 
     @OnMessage
-    public void onMessage(Session session, String message, @PathParam("gameId") long gameId) {
-        try {
-            ClientMessage clientMessage = Game.mapper.readValue(message, ClientMessage.class);
-            processMessage(session, clientMessage, gameId);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onMessage(ClientMessage message, Session session, @PathParam("gameId") long gameId) {
+        processMessage(session, message, gameId);
     }
 
     @OnClose
     public void onClose(Session session) {
-        System.out.println("closed!");
+        closeSession(session);
+    }
+
+    private void closeSession(Session session) {
+
+        Game game = GameEndpoint.getGame(session);
+        if (game == null)
+            return;
+        game.disconnectPlayer(session);
     }
 
     private void processMessage(Session session, ClientMessage clientMessage, long gameId) {
@@ -102,48 +104,15 @@ public class GameEndpoint {
             }
         }
         else {
-            if ("playerMadeMove".equalsIgnoreCase(clientMessage.getAction())) {
-                Player player = game.getPlayer(session);
-                if (player == null)
-                    return;
-                if (!game.checkTurn(session)) {
-                    return;
-                }
+            if("PLAYER_MADE_MOVE".equalsIgnoreCase(clientMessage.getAction())) {
                 List<Move> moves = clientMessage.getMove();
-                if (moves == null || moves.size() == 0) {
-                    if (game.skipTurn(player)) {
-                        game.gameOver();
-                    }
 
-                    List<Letter> changedLetters = clientMessage.getLetters();
-                    if (changedLetters != null && changedLetters.size() != 0) {
+                game.processMoves(session, moves);
+            }
+            else if("PLAYER_CHANGED_LETTERS".equalsIgnoreCase(clientMessage.getAction())) {
+                List<Letter> changedLetters = clientMessage.getLetters();
 
-                        game.changeTurn();
-
-                        List<Letter> newLetters = game.changeLetters(player, changedLetters);
-
-                        Message playerMessage = new PlayerChangedLettersMessage(game, newLetters);
-                        Message opponentMessage = new OpponentChangedLettersMessage(game, player.getUser().getUsername());
-
-                        game.sendJsonMessage(session, playerMessage);
-                        game.sendJsonMessageToOpponents(session, opponentMessage);
-                    }
-                } else {
-                    try {
-                        Map<String, Integer> words = game.computeMove(moves, player);
-
-                        game.changeTurn();
-
-                        Message playerMessage = new PlayerMadeMoveMessage(game, player, moves, words);
-                        Message opponentMessage = new OpponentMadeMoveMessage(game, player, moves, words);
-
-                        game.sendJsonMessage(session, playerMessage);
-                        game.sendJsonMessageToOpponents(session, opponentMessage);
-                    } catch (GameException e) {
-                        Message message = ExceptionMessageFactory.getMessage(e);
-                        game.sendJsonMessage(session, message);
-                    }
-                }
+                game.processChangingLetters(session, changedLetters);
             }
         }
     }
@@ -182,5 +151,13 @@ public class GameEndpoint {
 
     public static void removeGame(long gameId) {
         games.remove(gameId);
+    }
+
+    public static void removeActiveGame(long gameId) {
+        GameEndpoint.activeGames.remove(gameId);
+    }
+
+    public static void removeSession(Session session) {
+        allSessions.remove(session);
     }
 }

@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 @ServerEndpoint(value = "/start",
-                encoders = MessageCodec.class,
-                decoders = MessageCodec.class,
+                encoders = MessageEncoder.class,
+                decoders = MessageDecoder.class,
                 configurator = StartEndpoint.GetHttpSessionConfigurator.class)
 public class StartEndpoint {
 
@@ -164,13 +164,8 @@ public class StartEndpoint {
     }
 
     @OnMessage
-    public void onMessage(Session session, String message) {
-        try {
-            ClientMessage clientMessage = Game.mapper.readValue(message, ClientMessage.class);
-            processMessage(session, clientMessage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onMessage(ClientMessage message, Session session) {
+        processMessage(session, message);
     }
 
     private void processMessage(Session session, ClientMessage clientMessage) {

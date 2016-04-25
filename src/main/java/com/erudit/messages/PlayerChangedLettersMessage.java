@@ -14,10 +14,10 @@ public class PlayerChangedLettersMessage extends Message {
 
     private String nextMove;
 
-    public PlayerChangedLettersMessage(Game game, List<Letter> changedLetters) {
+    public PlayerChangedLettersMessage(String nextMove, List<Letter> changedLetters) {
         super("playerChangedLetters");
         this.changedLetters = changedLetters;
-        nextMove = game.getNextMove().getUsername();
+        this.nextMove = nextMove;
     }
 
     public List<Letter> getChangedLetters() {

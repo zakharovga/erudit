@@ -11,10 +11,10 @@ public class OpponentChangedLettersMessage extends Message {
 
     private String nextMove;
 
-    public OpponentChangedLettersMessage(Game game, String username) {
+    public OpponentChangedLettersMessage(String nextMove, String username) {
         super("opponentChangedLetters");
         opponent = username;
-        nextMove = game.getNextMove().getUsername();
+        this.nextMove = nextMove;
     }
 
     public String getOpponent() {

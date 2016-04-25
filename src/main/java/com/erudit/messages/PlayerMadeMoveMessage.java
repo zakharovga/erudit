@@ -18,12 +18,12 @@ public class PlayerMadeMoveMessage extends Message {
     private List<Letter> letters;
     private String nextMove;
 
-    public PlayerMadeMoveMessage(Game game, Player player, List<Move> moves, Map<String, Integer> words) {
+    public PlayerMadeMoveMessage(String nextMove, Player player, List<Move> moves, Map<String, Integer> words) {
         super("playerMadeMove");
         this.moves = moves;
         this.words = words;
         this.letters = player.getGivenLetters();
-        this.nextMove = game.getNextMove().getUsername();
+        this.nextMove = nextMove;
     }
 
     public String getNextMove() {

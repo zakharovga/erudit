@@ -367,6 +367,10 @@ $(document).ready(function () {
 
             return;
         }
+        if (message.action == 'opponentQuit') {
+            console.log(message.opponent + ' quit');
+            return;
+        }
     };
 
     var fillPlayerInfo = function (opponents) {
@@ -439,7 +443,7 @@ $(document).ready(function () {
 
             $makeMoveBtn.addClass('disabled');
 
-            webSocket.send(JSON.stringify({action: "playerMadeMove", move: move}));
+            webSocket.send(JSON.stringify({action: "PLAYER_MADE_MOVE", move: move}));
 
             var $moveMade = $('.move-made');
             //$moveMade.draggable('disable');
@@ -500,7 +504,7 @@ $(document).ready(function () {
 
                 sentLetters.push({letter: $letter.text(), value: $value.text()});
             }
-            webSocket.send(JSON.stringify({action: 'playerMadeMove', letters: sentLetters}));
+            webSocket.send(JSON.stringify({action: 'PLAYER_CHANGED_LETTERS', letters: sentLetters}));
         }
     };
 
