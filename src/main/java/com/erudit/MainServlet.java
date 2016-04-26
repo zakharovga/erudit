@@ -43,6 +43,11 @@ public class MainServlet extends HttpServlet {
                 return;
             }
 
+            if(game.getPlayerByHttpSessionId(httpSessionId).getPlayerStatus() != PlayerStatus.REDIRECTING) {
+                list(request, response);
+                return;
+            }
+
             if(game.checkHttpSessionId(httpSessionId)){
                 request.setAttribute("gameId", stringGameId);
                 view("game", request, response);

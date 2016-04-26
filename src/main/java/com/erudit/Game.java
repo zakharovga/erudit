@@ -124,10 +124,10 @@ public class Game {
             removeSession(session);
             GameEndpoint.removeSession(session);
 
+            if(getGameStatus() == GameStatus.REDIRECTING) {
+                return;
+            }
             if (size() == 0) {
-                if(getGameStatus() == GameStatus.REDIRECTING) {
-                    return;
-                }
                 GameEndpoint.removeUsername(username);
                 GameEndpoint.removeGame(gameId);
                 if(getGameStatus() == GameStatus.PENDING) {
@@ -231,7 +231,8 @@ public class Game {
 
     public void sendJsonMessage(Session session, Message message) {
         try {
-            session.getBasicRemote().sendObject(message);
+            if(session.isOpen())
+                session.getBasicRemote().sendObject(message);
         }
         catch(IOException | EncodeException e) {
             handleException(e);
@@ -332,18 +333,34 @@ public class Game {
 //        }
 //    }
 
-    public int getNumberOfPlayers() {
-        return sessions.size();
+    public void setReadyPlayerAndCheck(Session session, Player player, boolean ready) {
+        synchronized(lock) {
+            if (ready)
+                setPlayerStatus(player, PlayerStatus.READY);
+            else
+                setPlayerStatus(player, PlayerStatus.NOT_READY);
+
+            if (size() < 2)
+                return;
+            boolean allReady = true;
+            for (Player each : sessions.values()) {
+                if (each.getPlayerStatus() != PlayerStatus.READY)
+                    allReady = false;
+            }
+            if (allReady)
+                redirect();
+            else
+                sendJsonMessageToOpponents(session, new OpponentReadyMessage(player.getUsername(), ready));
+        }
     }
 
-    public boolean checkReadyPlayers() {
-        if (getNumberOfPlayers() < 2)
-            return false;
-        for (Player player : sessions.values()) {
-            if (player.getPlayerStatus() != PlayerStatus.READY)
-                return false;
-        }
-        return true;
+    private void redirect() {
+        prepare();
+
+        StartEndpoint.removePendingGame(gameId);
+        GameEndpoint.addRedirectingGame(gameId, this);
+
+        sendJsonMessage(new RedirectMessage(gameId));
     }
 
     public boolean checkActivePlayers() {
@@ -400,7 +417,7 @@ public class Game {
         player.setPlayerStatus(playerStatus);
     }
 
-    public void setRedirectingPlayers() {
+    private void setRedirectingPlayers() {
         for (Player player : sessions.values()) {
             player.setPlayerStatus(PlayerStatus.REDIRECTING);
         }
@@ -487,10 +504,11 @@ public class Game {
         return eruditGame.getNextMove();
     }
 
-    public void prepare() {
+    private void prepare() {
         eruditGame = new EruditGame();
         eruditGame.setPlayers(sessions.values());
 
+        setRedirectingPlayers();
         setGameStatus(GameStatus.REDIRECTING);
     }
 

@@ -109,32 +109,13 @@ public class StartEndpoint {
                 return;
 
             String username = clientMessage.getReadyOpponent();
-            if (username == null)
-                return;
 
             Player player = game.getPlayer(username);
             if (player == null)
                 return;
 
             boolean ready = clientMessage.isReady();
-//            synchronized (GameEndpoint.LOCK) {
-                if(game.getGameStatus() != GameStatus.PENDING)
-                    return;
-                if (ready)
-                    game.setPlayerStatus(player, PlayerStatus.READY);
-                else {
-                    game.setPlayerStatus(player, PlayerStatus.NOT_READY);
-                }
-
-                boolean playersReady = game.checkReadyPlayers();
-                if (playersReady) {
-                    System.out.println("INSIDE PLAYERSREADY");
-                    redirectGame(game);
-                }
-                else {
-                    game.sendJsonMessageToOpponents(session, new OpponentReadyMessage(username, ready));
-                }
-//            }
+            game.setReadyPlayerAndCheck(session, player, ready);
         }
     }
 
@@ -159,17 +140,6 @@ public class StartEndpoint {
             return;
 
         game.disconnectPlayer(session);
-    }
-
-    private void redirectGame(Game game) {
-
-        long gameId = game.getGameId();
-        game.prepare();
-
-        StartEndpoint.removePendingGame(gameId);
-        GameEndpoint.addRedirectingGame(gameId, game);
-
-        game.sendJsonMessage(new RedirectMessage(gameId));
     }
 
     public static class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurator {

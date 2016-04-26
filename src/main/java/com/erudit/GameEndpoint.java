@@ -64,11 +64,11 @@ public class GameEndpoint {
             }
             else {
                 boolean allActive = game.setActiveAndCheck(session, player);
+
+                System.out.println(allActive);
+
                 if(allActive) {
                     game.start();
-
-                    System.out.println(game.getSessions());
-
                     for (Map.Entry<Session, Player> entry : game.getSessions().entrySet()) {
                         Session eachSession = entry.getKey();
                         Player eachPlayer = entry.getValue();
