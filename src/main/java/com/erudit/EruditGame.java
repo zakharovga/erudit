@@ -385,16 +385,6 @@ public class EruditGame {
         usedWords = new HashSet<>();
     }
 
-//    public static EruditGame startGame(EruditGame eruditGame, Collection<Player> players) {
-////        GameEndpoint.pendingGames.remove(eruditGame.id);
-////        EruditGame.activeGames.put(eruditGame.id, eruditGame);
-////        eruditGame.players = new ArrayList<>(players);
-//        eruditGame.initPlayerLetters();
-//        eruditGame.nextMove();
-//        eruditGame.usedWords = new HashSet<>();
-//        return eruditGame;
-//    }
-
     public void setPlayers(Collection<Player> players) {
         this.players = new ArrayList<>(players);
     }
@@ -467,20 +457,7 @@ public class EruditGame {
         private int points = 0;
         private Set<Move> moves = new HashSet<>();
 
-        public Word() {
-        }
-
-        public Word(int beginRow, int beginColumn, int endRow, int endColumn, String word) {
-            this.beginRow = beginRow;
-            this.beginColumn = beginColumn;
-            this.endRow = endRow;
-            this.endColumn = endColumn;
-            this.word = word;
-        }
-
-        private boolean checkWord(String word) {
-            return checkWord(word);
-        }
+        public Word() { }
 
         public int computePoints() {
             int k = 1;

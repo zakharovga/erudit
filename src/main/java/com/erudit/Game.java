@@ -195,11 +195,11 @@ public class Game {
         }
     }
 
-    public List<Player> getPlayers() {
+    private List<Player> getPlayers() {
         return eruditGame.getPlayers();
     }
 
-    public void gameOver() {
+    private void gameOver() {
         List<PlayerResult> gameResult = getGameResult();
         Message message = new GameOverMessage(gameResult);
 
@@ -229,7 +229,7 @@ public class Game {
         return result;
     }
 
-    public void sendJsonMessage(Session session, Message message) {
+    private void sendJsonMessage(Session session, Message message) {
         try {
             if(session.isOpen())
                 session.getBasicRemote().sendObject(message);
@@ -239,14 +239,14 @@ public class Game {
         }
     }
 
-    public void sendJsonMessage(Message message) {
+    private void sendJsonMessage(Message message) {
 
         for(Session session : getSessions().keySet()) {
             sendJsonMessage(session, message);
         }
     }
 
-    public void sendJsonMessageToOpponents(Session playerSession, Message message) {
+    private void sendJsonMessageToOpponents(Session playerSession, Message message) {
 
         for(Session session : getSessions().keySet()) {
             if(playerSession != session) {
@@ -255,7 +255,7 @@ public class Game {
         }
     }
 
-    public void handleException(Throwable t) {
+    private void handleException(Throwable t) {
         t.printStackTrace();
     }
 
@@ -283,22 +283,6 @@ public class Game {
         sessions.remove(session);
     }
 
-//    public Session removeSession(String username) {
-//        synchronized (sessions) {
-//            Session oldSession = null;
-//            Iterator<Map.Entry<Session, Player>> it = sessions.entrySet().iterator();
-//            while (it.hasNext()) {
-//                Map.Entry<Session, Player> entry = it.next();
-//                if (entry.getValue().getUser().getUsername().equals(username)) {
-//                    oldSession = entry.getKey();
-//                    it.remove();
-//                    break;
-//                }
-//            }
-//            return oldSession;
-//        }
-//    }
-
     public Session getSession(String username) {
         synchronized(lock) {
             Session session = null;
@@ -312,7 +296,7 @@ public class Game {
         }
     }
 
-    public List<User> getOpponents(Session session) {
+    private List<User> getOpponents(Session session) {
         Player player = sessions.get(session);
         List<User> opponents = new ArrayList<>();
         for (Map.Entry<Session, Player> entry : sessions.entrySet()) {
@@ -322,16 +306,6 @@ public class Game {
         }
         return opponents;
     }
-
-//    public Map<Session, List<Player>> getOpponents(Session session) {
-//        Map<Session, List<Player>> sessionOpponentsMap = new HashMap<>();
-//        Collection<Player> players = sessions.values();
-//        for (Player player : players) {
-//            Collection<Player> temp = new
-//            if (!player.getUsername().equalsIgnoreCase(player.getUser().getUsername()))
-//                opponents.add(opponent.getUser());
-//        }
-//    }
 
     public void setReadyPlayerAndCheck(Session session, Player player, boolean ready) {
         synchronized(lock) {
@@ -363,34 +337,35 @@ public class Game {
         sendJsonMessage(new RedirectMessage(gameId));
     }
 
-    public boolean checkActivePlayers() {
+    private boolean checkActivePlayers() {
         return eruditGame.checkActivePlayers();
     }
 
-    public synchronized boolean setActiveAndCheck(Session session, Player player) {
-        setPlayerStatus(player, PlayerStatus.ACTIVE);
-        addSession(session, player);
-        return checkActivePlayers();
+    public void setActiveAndCheck(Session session, Player player) {
+        synchronized(lock) {
+            setPlayerStatus(player, PlayerStatus.ACTIVE);
+            addSession(session, player);
+
+            if (checkActivePlayers()) {
+                start();
+                for (Map.Entry<Session, Player> entry : getSessions().entrySet()) {
+                    Session eachSession = entry.getKey();
+                    Player eachPlayer = entry.getValue();
+                    List<User> opponents = getOpponents(eachSession);
+                    String nextMove = getNextMove().getUsername();
+
+                    Message eachMessage = new GameStartedMessage(nextMove, eachPlayer, opponents);
+                    sendJsonMessage(eachSession, eachMessage);
+                }
+            }
+        }
     }
 
-//    public boolean checkTurnAndReset(Session session) {
-//        synchronized(lock) {
-//            Player player = sessions.get(session);
-//            Player nextMove = getNextMove();
-//            if (player == nextMove) {
-//                nextMove();
-//                timer.start();
-//            }
-//            return player == nextMove;
-//        }
-//    }
-
-    public boolean checkTurn(Session session) {
-        Player player = sessions.get(session);
-        return player == getNextMove();
+    private boolean checkTurn(Session session) {
+        return sessions.get(session) == getNextMove();
     }
 
-    public boolean skipTurn(Player player) {
+    private boolean skipTurn(Player player) {
         return eruditGame.skipTurn(player);
     }
 
@@ -398,22 +373,20 @@ public class Game {
         eruditGame.resetSkippedTurns();
     }
 
-    public List<Letter> changeLetters(Player player, List<Letter> letters) {
+    private List<Letter> changeLetters(Player player, List<Letter> letters) {
         return eruditGame.changeLetters(player, letters);
     }
 
-    public Map<String, Integer> computeMove(List<Move> moves, Player player) throws GameException {
+    private Map<String, Integer> computeMove(List<Move> moves, Player player) throws GameException {
         try {
             return eruditGame.computeMove(moves, player);
-//                resetSkippedTurns();
-//                timer.start();
         } catch (GameException e) {
             eruditGame.cancelMoves();
             throw e;
         }
     }
 
-    public void setPlayerStatus(Player player, PlayerStatus playerStatus) {
+    private void setPlayerStatus(Player player, PlayerStatus playerStatus) {
         player.setPlayerStatus(playerStatus);
     }
 
@@ -431,36 +404,17 @@ public class Game {
         this.creator = creator;
     }
 
-    public void setGameStatus(GameStatus gameStatus) {
+    private void setGameStatus(GameStatus gameStatus) {
         this.gameStatus = gameStatus;
     }
 
-    public GameStatus getGameStatus() {
+    private GameStatus getGameStatus() {
         return gameStatus;
     }
-
-//    public boolean checkHttpSessionId(String httpSessionId) {
-//        for (Player player : eruditGame.getPlayers()) {
-//            if (player.getHttpSessionId().equals(httpSessionId))
-//                if (player.getPlayerStatus() == PlayerStatus.READY) {
-//                    player.setPlayerStatus(PlayerStatus.REDIRECTING);
-//                    return true;
-//                }
-//        }
-//        return false;
-//    }
 
     public boolean checkHttpSessionId(String httpSessionId) {
         return httpSessions.get(httpSessionId) != null;
     }
-
-//    public Player getPlayerByHttpSessionId(String httpSessionId) {
-//        for (Player player : eruditGame.getPlayers()) {
-//            if (player.getHttpSessionId().equals(httpSessionId))
-//                return player;
-//        }
-//        return null;
-//    }
 
     public Player getPlayerByHttpSessionId(String httpSessionId) {
         return httpSessions.get(httpSessionId);
@@ -474,21 +428,17 @@ public class Game {
                 '}';
     }
 
-    public void initPlayers() {
-        eruditGame.setPlayers(sessions.values());
-    }
-
-    public Player nextMove() {
+    private Player nextMove() {
         return eruditGame.nextMove();
     }
 
-    public void start() {
+    private void start() {
         eruditGame.start();
         setGameStatus(GameStatus.ACTIVE);
         timer.start();
     }
 
-    public Player getPlayer(Session session) {
+    private Player getPlayer(Session session) {
         return sessions.get(session);
     }
 
@@ -500,7 +450,7 @@ public class Game {
         return null;
     }
 
-    public Player getNextMove() {
+    private Player getNextMove() {
         return eruditGame.getNextMove();
     }
 
@@ -540,14 +490,13 @@ public class Game {
 
     public static class Opponent {
 
+        User user;
+        boolean ready;
+
         public Opponent(User user, boolean ready) {
             this.ready = ready;
             this.user = user;
         }
-
-        User user;
-        boolean ready;
-
         public boolean isReady() {
             return ready;
         }

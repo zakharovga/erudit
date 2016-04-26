@@ -35,9 +35,9 @@ public class GameStartedMessage extends Message {
         this.givenLetters = givenLetters;
     }
 
-    public GameStartedMessage(Game game, Player player, List<User> opponents) {
+    public GameStartedMessage(String nextMove, Player player, List<User> opponents) {
         super("GAME_STARTED");
-        this.nextMove = game.getNextMove().getUsername();
+        this.nextMove = nextMove;
         this.givenLetters = player.getGivenLetters();
         this.opponents = opponents;
     }

@@ -49,11 +49,7 @@ public class GameEndpoint {
             }
         }
         else {
-
             Player player = game.getPlayerByHttpSessionId(httpSessionId);
-
-            System.out.println(player);
-
             if(player == null) {
                 try {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
@@ -63,21 +59,7 @@ public class GameEndpoint {
                 }
             }
             else {
-                boolean allActive = game.setActiveAndCheck(session, player);
-
-                System.out.println(allActive);
-
-                if(allActive) {
-                    game.start();
-                    for (Map.Entry<Session, Player> entry : game.getSessions().entrySet()) {
-                        Session eachSession = entry.getKey();
-                        Player eachPlayer = entry.getValue();
-                        List<User> opponents = game.getOpponents(eachSession);
-
-                        Message eachMessage = new GameStartedMessage(game, eachPlayer, opponents);
-                        game.sendJsonMessage(eachSession, eachMessage);
-                    }
-                }
+                game.setActiveAndCheck(session, player);
             }
         }
     }
