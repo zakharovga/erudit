@@ -8,7 +8,7 @@ public class TimeOverMessage extends Message {
     private String nextMove;
 
     public TimeOverMessage(String player, String nextMove) {
-        super("timeOver");
+        super("TIME_OVER");
         this.player = player;
         this.nextMove = nextMove;
     }

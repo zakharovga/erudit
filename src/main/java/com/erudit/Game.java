@@ -2,7 +2,6 @@ package com.erudit;
 
 import com.erudit.exceptions.GameException;
 import com.erudit.messages.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;
@@ -121,13 +120,23 @@ public class Game {
     public void disconnectPlayer(Session session) {
         synchronized (lock) {
             String username = getPlayer(session).getUsername();
-            GameEndpoint.removeUsername(username);
+
             removeSession(session);
+            GameEndpoint.removeSession(session);
+
             if (size() == 0) {
-                this.setGameStatus(GameStatus.CLOSED);
+                if(getGameStatus() == GameStatus.REDIRECTING) {
+                    return;
+                }
+                GameEndpoint.removeUsername(username);
                 GameEndpoint.removeGame(gameId);
-                GameEndpoint.removeActiveGame(gameId);
-                GameEndpoint.removeSession(session);
+                if(getGameStatus() == GameStatus.PENDING) {
+                    StartEndpoint.removePendingGame(getGameId());
+                }
+                else if(getGameStatus() == GameStatus.ACTIVE) {
+                    GameEndpoint.removeActiveGame(gameId);
+                }
+                this.setGameStatus(GameStatus.CLOSED);
             } else
                 sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
         }

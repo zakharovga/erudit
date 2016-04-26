@@ -25,7 +25,6 @@ public class Configurator implements ServletContextListener {
         registration.addMappingForUrlPatterns(null, false, "/login", "/start", "/game", "/register");
 
         WordDB.cacheDictionary();
-        System.out.println(EruditGame.checkWord("ПАН"));
     }
 
     @Override

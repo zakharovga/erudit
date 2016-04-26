@@ -19,7 +19,7 @@ public class PlayerMadeMoveMessage extends Message {
     private String nextMove;
 
     public PlayerMadeMoveMessage(String nextMove, Player player, List<Move> moves, Map<String, Integer> words) {
-        super("playerMadeMove");
+        super("PLAYER_MADE_MOVE");
         this.moves = moves;
         this.words = words;
         this.letters = player.getGivenLetters();

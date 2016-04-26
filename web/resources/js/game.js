@@ -164,7 +164,7 @@ $(document).ready(function () {
     webSocket.onmessage = function (event) {
         var message = JSON.parse(event.data);
 
-        if (message.action == 'gameStarted') {
+        if (message.action == 'GAME_STARTED') {
 
             timer.start();
 
@@ -179,7 +179,7 @@ $(document).ready(function () {
             }
             return;
         }
-        if (message.action == 'playerMadeMove') {
+        if (message.action == 'PLAYER_MADE_MOVE') {
 
             var $moveMade = $('.move-made');
             $moveMade.draggable('destroy');
@@ -197,7 +197,7 @@ $(document).ready(function () {
             fillWordList(message.words, username);
             return;
         }
-        if (message.action == 'opponentMadeMove') {
+        if (message.action == 'OPPONENT_MADE_MOVE') {
             for (var i = message.moves.length - 1; i >= 0; i--) {
                 var id = "r" + message.moves[i].row + "c" + message.moves[i].column;
                 var letter = message.moves[i].letter.letter;
@@ -221,7 +221,7 @@ $(document).ready(function () {
             }
             return;
         }
-        if (message.action == 'playerChangedLetters') {
+        if (message.action == 'PLAYER_CHANGED_LETTERS') {
             $('.letter-line').draggable('enable');
             toggleTurn(message.nextMove);
 
@@ -231,7 +231,7 @@ $(document).ready(function () {
             replaceChangedLetters(message.changedLetters);
             return;
         }
-        if (message.action == 'opponentChangedLetters') {
+        if (message.action == 'OPPONENT_CHANGED_LETTERS') {
             toggleTurn(message.nextMove);
 
             timer.stop();
@@ -243,9 +243,7 @@ $(document).ready(function () {
             }
             return;
         }
-        if (message.action == 'timeOver') {
-
-            console.log("time over");
+        if (message.action == 'TIME_OVER') {
 
             var beforeToggle = myTurn;
 
@@ -289,7 +287,7 @@ $(document).ready(function () {
             }
             return;
         }
-        if(message.action === 'gameOver') {
+        if(message.action === 'GAME_OVER') {
             var gameResult = message.gameResult;
 
             var $h4 = $('<h4/>');
@@ -367,7 +365,7 @@ $(document).ready(function () {
 
             return;
         }
-        if (message.action == 'opponentQuit') {
+        if (message.action == 'OPPONENT_QUIT') {
             console.log(message.opponent + ' quit');
             return;
         }

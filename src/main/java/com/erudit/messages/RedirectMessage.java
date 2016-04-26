@@ -8,7 +8,7 @@ public class RedirectMessage extends Message {
     private long gameId;
 
     public RedirectMessage(long gameId) {
-        super("playerRedirected");
+        super("PLAYER_REDIRECTED");
         this.gameId = gameId;
     }
 

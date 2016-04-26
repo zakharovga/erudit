@@ -8,7 +8,7 @@ public class OpponentQuitMessage extends Message {
     private String opponent;
 
     public OpponentQuitMessage(String username) {
-        super("opponentQuit");
+        super("OPPONENT_QUIT");
         this.opponent = username;
     }
 

@@ -12,7 +12,7 @@ public class OpponentChangedLettersMessage extends Message {
     private String nextMove;
 
     public OpponentChangedLettersMessage(String nextMove, String username) {
-        super("opponentChangedLetters");
+        super("OPPONENT_CHANGED_LETTERS");
         opponent = username;
         this.nextMove = nextMove;
     }

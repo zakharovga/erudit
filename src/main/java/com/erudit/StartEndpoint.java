@@ -42,10 +42,10 @@ public class StartEndpoint {
         if (actionList != null && actionList.size() == 1) {
             String action = actionList.get(0);
 
-            if ("create".equalsIgnoreCase(action)) {
+            if ("CREATE".equalsIgnoreCase(action)) {
                 createGame(session, sessionId, user);
 
-            } else if ("join".equalsIgnoreCase(action)) {
+            } else if ("JOIN".equalsIgnoreCase(action)) {
                 joinGame(session, sessionId, user);
             }
         }
@@ -94,7 +94,6 @@ public class StartEndpoint {
 
     @OnClose
     public void onClose(Session session) {
-        System.out.println("startpoint");
         closeSession(session);
     }
 
@@ -104,7 +103,7 @@ public class StartEndpoint {
     }
 
     private void processMessage(Session session, ClientMessage clientMessage) {
-        if ("opponentReady".equalsIgnoreCase(clientMessage.getAction())) {
+        if ("OPPONENT_READY".equalsIgnoreCase(clientMessage.getAction())) {
             Game game = GameEndpoint.getGame(session);
             if (game == null)
                 return;
@@ -128,8 +127,10 @@ public class StartEndpoint {
                 }
 
                 boolean playersReady = game.checkReadyPlayers();
-                if (playersReady)
+                if (playersReady) {
+                    System.out.println("INSIDE PLAYERSREADY");
                     redirectGame(game);
+                }
                 else {
                     game.sendJsonMessageToOpponents(session, new OpponentReadyMessage(username, ready));
                 }
@@ -153,28 +154,11 @@ public class StartEndpoint {
 
     private void closeSession(Session session) {
 
-
         Game game = GameEndpoint.getGame(session);
         if (game == null)
             return;
 
-        long gameId = game.getGameId();
-        String username = game.getPlayer(session).getUsername();
-
-//        synchronized(GameEndpoint.LOCK) {
-
-            game.removeSession(session);
-
-            if (game.getGameStatus() != GameStatus.REDIRECTING) {
-                GameEndpoint.removeUsername(username);
-                if (game.size() == 0) {
-                    GameEndpoint.removeGame(gameId);
-                    removePendingGame(gameId);
-                } else
-                    System.out.println(game.getGameStatus());
-                    game.sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
-            }
-//        }
+        game.disconnectPlayer(session);
     }
 
     private void redirectGame(Game game) {

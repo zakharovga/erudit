@@ -49,7 +49,11 @@ public class GameEndpoint {
             }
         }
         else {
+
             Player player = game.getPlayerByHttpSessionId(httpSessionId);
+
+            System.out.println(player);
+
             if(player == null) {
                 try {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
@@ -62,6 +66,9 @@ public class GameEndpoint {
                 boolean allActive = game.setActiveAndCheck(session, player);
                 if(allActive) {
                     game.start();
+
+                    System.out.println(game.getSessions());
+
                     for (Map.Entry<Session, Player> entry : game.getSessions().entrySet()) {
                         Session eachSession = entry.getKey();
                         Player eachPlayer = entry.getValue();
@@ -82,12 +89,10 @@ public class GameEndpoint {
 
     @OnClose
     public void onClose(Session session) {
-        System.out.println("gamepoint");
         closeSession(session);
     }
 
     private void closeSession(Session session) {
-
 
         Game game = GameEndpoint.getGame(session);
         if (game == null)

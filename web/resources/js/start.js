@@ -53,11 +53,11 @@ $(document).ready(function () {
 
     var createWebSocket = function (action, gameId) {
         try {
-            if (action == 'create') {
+            if (action == 'CREATE') {
                 webSocket = new WebSocket('ws://' + window.location.host + '/start?action=' + action);
                 return webSocket;
             }
-            else if (action == 'join') {
+            else if (action == 'JOIN') {
                 webSocket = new WebSocket('ws://' + window.location.host + '/start?action=' + action +
                     '&' + 'gameid=' + gameId);
                 return webSocket;
@@ -99,21 +99,21 @@ $(document).ready(function () {
         webSocket.onmessage = function (event) {
 
             var message = JSON.parse(event.data);
-            if (message.action == 'playerJoined') {
+            if (message.action == 'PLAYER_JOINED') {
                 $modalWaiting.modal('hide');
                 $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
                 joinPlayer(message.opponents);
                 return;
             }
-            if (message.action == 'opponentJoined') {
+            if (message.action == 'OPPONENT_JOINED') {
                 joinOpponent(message.player);
                 return;
             }
-            if (message.action == 'opponentQuit') {
+            if (message.action == 'OPPONENT_QUIT') {
                 deleteOpponent(message.opponent);
                 return;
             }
-            if (message.action == 'opponentReady') {
+            if (message.action == 'OPPONENT_READY') {
                 var readyIndex;
                 var ready = message.ready;
                 for (var i = 0; i < playerOpponents.length; i++) {
@@ -129,7 +129,7 @@ $(document).ready(function () {
                     $('#opponent' + i + '-modal').removeClass('selected');
                 }
             }
-            if (message.action == 'playerRedirected') {
+            if (message.action == 'PLAYER_REDIRECTED') {
                 redirectToGame(message.gameId);
             }
         };
@@ -173,7 +173,7 @@ $(document).ready(function () {
         try {
             $modalWaiting.modal('show');
 
-            webSocket = createWebSocket('create');
+            webSocket = createWebSocket('CREATE');
 
             webSocket.onopen = function (event) {
                 $modalWaiting.modal('hide');
@@ -193,7 +193,7 @@ $(document).ready(function () {
         try {
             $modalWaiting.modal('show');
 
-            webSocket = createWebSocket('join', gameId);
+            webSocket = createWebSocket('JOIN', gameId);
             webSocket.onopen = function (event) {
                 $("#player-modal").show();
             };
@@ -216,11 +216,11 @@ $(document).ready(function () {
     var setReady = function (ready) {
         if (ready) {
             $('#player-modal').addClass('selected');
-            webSocket.send(JSON.stringify({action: 'opponentReady', readyOpponent: player.username, ready: true}));
+            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: true}));
         }
         else {
             $('#player-modal').removeClass('selected');
-            webSocket.send(JSON.stringify({action: 'opponentReady', readyOpponent: player.username, ready: false}));
+            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: false}));
         }
     };
 

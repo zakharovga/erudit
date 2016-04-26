@@ -10,7 +10,7 @@ public class OpponentJoinedMessage extends Message {
     private User player;
 
     public OpponentJoinedMessage(User player) {
-        super("opponentJoined");
+        super("OPPONENT_JOINED");
         this.player = player;
     }
 

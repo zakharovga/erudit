@@ -15,7 +15,7 @@ public class PlayerChangedLettersMessage extends Message {
     private String nextMove;
 
     public PlayerChangedLettersMessage(String nextMove, List<Letter> changedLetters) {
-        super("playerChangedLetters");
+        super("PLAYER_CHANGED_LETTERS");
         this.changedLetters = changedLetters;
         this.nextMove = nextMove;
     }

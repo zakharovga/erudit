@@ -15,7 +15,7 @@ public class PlayerJoinedMessage extends Message {
     private List<Game.Opponent> opponents = new ArrayList<>();
 
     public PlayerJoinedMessage(List<Game.Opponent> opponents) {
-        super("playerJoined");
+        super("PLAYER_JOINED");
         this.opponents = opponents;
     }
 

@@ -21,7 +21,7 @@ public class OpponentMadeMoveMessage extends Message {
     private Map<String, Integer> words;
 
     public OpponentMadeMoveMessage(String nextMove, Player player, List<Move> moves, Map<String, Integer> words) {
-        super("opponentMadeMove");
+        super("OPPONENT_MADE_MOVE");
         this.nextMove = nextMove;
         this.moves = moves;
         this.previousMove = player.getUser().getUsername();

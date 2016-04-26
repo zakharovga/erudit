@@ -13,7 +13,7 @@ public class GameOverMessage extends Message {
     private List<Game.PlayerResult> gameResult;
 
     public GameOverMessage(List<Game.PlayerResult> gameResult) {
-        super("gameOver");
+        super("GAME_OVER");
         this.gameResult = gameResult;
     }
 

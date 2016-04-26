@@ -9,7 +9,7 @@ public class OpponentReadyMessage extends Message {
     private boolean ready;
 
     public OpponentReadyMessage(String opponent, boolean ready) {
-        super("opponentReady");
+        super("OPPONENT_READY");
         this.opponent = opponent;
         this.ready = ready;
     }
