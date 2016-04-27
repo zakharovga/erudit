@@ -158,14 +158,6 @@ $(document).ready(function () {
             $modalErrorBody.text('Произошла ошибка ' + event.data);
             $modalError.modal('show');
         };
-
-//            $("#start").click(startGame);
-//
-//            var startGame = function () {
-//                if (webSocket != null) {
-//                    webSocket.send(JSON.stringify({action: 'start'}));
-//                }
-//            };
     };
 
     var createGame = function () {

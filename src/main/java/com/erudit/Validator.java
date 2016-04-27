@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 public class Validator {
 
     private static final String EMAIL_PATTERN = "^.+@.+(\\.[^\\.]+)+$";
-    private static final String USERNAME_PATTERN = "[a-zA-Z_0-9\\p{IsCyrillic}\\s]{3,45}";
-    private static final String PASSWORD_PATTERN = "[a-zA-Z_0-9]{5,15}";
+    private static final String USERNAME_PATTERN = "[a-zA-Z_0-9\\p{IsCyrillic}\\s]{3,15}";
+    private static final String PASSWORD_PATTERN = "[a-zA-Z_0-9]{3,15}";
 
     public static boolean validateEmail(String email) {
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);

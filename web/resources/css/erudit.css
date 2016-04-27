@@ -1,3 +1,12 @@
+.error-msg {
+    color: red;
+    display: none;
+}
+
+#register-success {
+    display: none;
+}
+
 #next-turn {
     color: #fff !important;
 }

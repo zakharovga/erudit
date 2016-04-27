@@ -416,6 +416,13 @@ public class Game {
         return httpSessions.get(httpSessionId) != null;
     }
 
+    public boolean checkRedirectingPlayer(String httpSessionId) {
+        Player player = getPlayerByHttpSessionId(httpSessionId);
+
+        return player.getPlayerStatus() == PlayerStatus.REDIRECTING &&
+                httpSessions.get(httpSessionId) != null;
+    }
+
     public Player getPlayerByHttpSessionId(String httpSessionId) {
         return httpSessions.get(httpSessionId);
     }

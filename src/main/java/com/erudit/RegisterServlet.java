@@ -33,42 +33,59 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        String email = request.getParameter("email");
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
 
-        List<RegistrationError> errors = new ArrayList<>();
+        if(ajax) {
+            String email = request.getParameter("email").trim();
+            String username = request.getParameter("username").trim();
+            String password = request.getParameter("password").trim();
 
-        if(!Validator.validateEmail(email))
-            errors.add(RegistrationError.EMAIL_VALIDATION_ERROR);
+            RegistrationMessage message = new RegistrationMessage();
+            List<RegistrationError> errors = new ArrayList<>();
 
-        if(!Validator.validateUsername(username))
-            errors.add(RegistrationError.USERNAME_VALIDATION_ERROR);
+            if (!Validator.validateEmail(email))
+                errors.add(RegistrationError.EMAIL_VALIDATION_ERROR);
 
-        if(!Validator.validatePassword(password))
-            errors.add(RegistrationError.PASSWORD_VALIDATION_ERROR);
+            if (!Validator.validateUsername(username))
+                errors.add(RegistrationError.USERNAME_VALIDATION_ERROR);
 
-        if(errors.size() != 0) {
-            request.setAttribute("errors", errors);
-            view("register", request, response);
-        }
-        else {
-            User user = new User(email, username, User.DEFAULT_RATING, false);
-            try {
-                String hashedPassword = PasswordUtil.hashPassword(password);
-                UserDB.insert(user, hashedPassword);
-                HttpSession httpSession = request.getSession();
-                httpSession.setAttribute("user", user);
+            if (!Validator.validatePassword(password))
+                errors.add(RegistrationError.PASSWORD_VALIDATION_ERROR);
 
-                response.sendRedirect("start");
-            } catch (SQLException e) {
-                if (e.getSQLState().startsWith("23")) {
-                    errors.add(RegistrationError.DUPLICATE_ERROR);
-                    request.setAttribute("errors", errors);
-                    view("register", request, response);
+            if (errors.size() != 0) {
+                message.setValid(false);
+                message.setErrors(errors);
+
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(MessageEncoder.MAPPER.writeValueAsString(message));
+            } else {
+                User user = new User(email, username, User.DEFAULT_RATING, false);
+                try {
+                    String hashedPassword = PasswordUtil.hashPassword(password);
+                    UserDB.insert(user, hashedPassword);
+                    HttpSession httpSession = request.getSession();
+                    httpSession.setAttribute("user", user);
+
+                    message.setValid(true);
+
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(MessageEncoder.MAPPER.writeValueAsString(message));
+                } catch (SQLException e) {
+                    if (e.getSQLState().startsWith("23")) {
+                        errors.add(RegistrationError.DUPLICATE_ERROR);
+
+                        message.setValid(false);
+                        message.setErrors(errors);
+
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write(MessageEncoder.MAPPER.writeValueAsString(message));
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
                 }
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -80,4 +97,25 @@ public class RegisterServlet extends HttpServlet {
 //    private void list(HttpServletRequest request, HttpServletResponse response) throws IOException {
 //        response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/start"));
 //    }
+
+    private static class RegistrationMessage {
+        private boolean valid;
+        private List<RegistrationError> errors;
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public void setValid(boolean valid) {
+            this.valid = valid;
+        }
+
+        public List<RegistrationError> getErrors() {
+            return errors;
+        }
+
+        public void setErrors(List<RegistrationError> errors) {
+            this.errors = errors;
+        }
+    }
 }
