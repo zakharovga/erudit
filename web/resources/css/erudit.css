@@ -1,3 +1,18 @@
+@import url(https://fonts.googleapis.com/css?family=Chewy);
+
+.player-disconnected {
+    background-color: #eeeeee; !important;
+    color: #bbbbbb; !important;
+}
+
+.navbar-brand {
+    font-family: 'Chewy', cursive !important;
+}
+
+.jumbotron h1 {
+    font-family: 'Chewy', cursive !important;
+}
+
 .error-msg {
     color: red;
     display: none;
@@ -28,7 +43,7 @@
 }
 
 .panel {
-    background-color: #bababa;
+    background-color: #ddd;
 }
 
 .jumbotron h1 {

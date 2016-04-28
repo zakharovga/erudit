@@ -119,16 +119,18 @@ public class Game {
 
     public void disconnectPlayer(Session session) {
         synchronized (lock) {
-            String username = getPlayer(session).getUsername();
+            Player player = getPlayer(session);
+            String username = player.getUsername();
 
             removeSession(session);
             GameEndpoint.removeSession(session);
+            GameEndpoint.removeUsername(username);
 
             if(getGameStatus() == GameStatus.REDIRECTING) {
                 return;
             }
+
             if (size() == 0) {
-                GameEndpoint.removeUsername(username);
                 GameEndpoint.removeGame(gameId);
                 if(getGameStatus() == GameStatus.PENDING) {
                     StartEndpoint.removePendingGame(getGameId());
@@ -137,8 +139,19 @@ public class Game {
                     GameEndpoint.removeActiveGame(gameId);
                 }
                 this.setGameStatus(GameStatus.CLOSED);
-            } else
-                sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
+            } else {
+                if(getGameStatus() == GameStatus.PENDING) {
+                    sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
+                }
+                else if(getGameStatus() == GameStatus.ACTIVE) {
+                    player.setPlayerStatus(PlayerStatus.DISCONNECTED);
+                    if(getNextMove() == player) {
+                        nextMove();
+                        timer.start();
+                    }
+                    sendJsonMessageToOpponents(session, new OpponentQuitMessage(username, getNextMove().getUsername()));
+                }
+            }
         }
     }
 
@@ -345,6 +358,8 @@ public class Game {
         synchronized(lock) {
             setPlayerStatus(player, PlayerStatus.ACTIVE);
             addSession(session, player);
+            GameEndpoint.addSession(session, this);
+            GameEndpoint.addActiveGame(gameId, this);
 
             if (checkActivePlayers()) {
                 start();
@@ -442,6 +457,7 @@ public class Game {
     private void start() {
         eruditGame.start();
         setGameStatus(GameStatus.ACTIVE);
+        GameEndpoint.removeRedirectingGame(gameId);
         timer.start();
     }
 

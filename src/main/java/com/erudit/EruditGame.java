@@ -62,8 +62,13 @@ public class EruditGame {
             index = players.indexOf(nextMove);
             index++;
         }
-        nextMove = players.get(index % n);
-        return nextMove;
+        while(true) {
+            nextMove = players.get(index % n);
+            if(nextMove.getPlayerStatus() == PlayerStatus.ACTIVE)
+                return nextMove;
+            else
+                index++;
+        }
     }
 
     public Player getNextMove() {

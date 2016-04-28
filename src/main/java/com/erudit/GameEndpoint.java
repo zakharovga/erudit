@@ -26,8 +26,6 @@ public class GameEndpoint {
     private static final Map<Long, Game> redirectingGames = new ConcurrentHashMap<>();
     private static Map<Session, Game> allSessions = new ConcurrentHashMap<>();
 
-//    public static final Object LOCK = new Object();
-
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config, @PathParam("gameId") long gameId) {
@@ -71,6 +69,7 @@ public class GameEndpoint {
 
     @OnClose
     public void onClose(Session session) {
+
         closeSession(session);
     }
 
@@ -110,6 +109,10 @@ public class GameEndpoint {
         redirectingGames.put(gameId, game);
     }
 
+    public static void addActiveGame(long gameId, Game game) {
+        activeGames.put(gameId, game);
+    }
+
     public static void addGame(long gameId, Game game) {
         games.put(gameId, game);
     }
@@ -144,6 +147,10 @@ public class GameEndpoint {
 
     public static void removeActiveGame(long gameId) {
         GameEndpoint.activeGames.remove(gameId);
+    }
+
+    public static void removeRedirectingGame(long gameId) {
+        GameEndpoint.redirectingGames.remove(gameId);
     }
 
     public static void removeSession(Session session) {

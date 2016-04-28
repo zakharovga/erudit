@@ -171,6 +171,9 @@ $(document).ready(function () {
             $('.letter-container>div').droppable('enable');
             $modalWaiting.modal('hide');
             fillLetterContainer(message.givenLetters);
+
+            console.log("STARTED");
+
             fillPlayerInfo(message.opponents);
             toggleTurn(message.nextMove);
             if (myTurn) {
@@ -366,18 +369,26 @@ $(document).ready(function () {
             return;
         }
         if (message.action == 'OPPONENT_QUIT') {
-            console.log(message.opponent + ' quit');
-            return;
+            for(var i = 0; i < playerOpponents.length; i++) {
+                if(playerOpponents[i].username === message.opponent) {
+                    $("#opponent" + i).addClass('player-disconnected');
+                }
+            }
         }
     };
 
     var fillPlayerInfo = function (opponents) {
-        $("#player-name").text(username);
-        $("#player").show('slow');
-        for (var i = 0; i < opponents.length; i++) {
-            $("#opponent" + i + "-name").text(opponents[i].username);
-            $("#opponent" + i).show('slow');
-        }
+
+        console.log(opponents);
+
+        //$("#player-name").text(username);
+        //$("#player").show('slow');
+        //for (var i = 0; i < opponents.length; i++) {
+        //    playerOpponents[i] = opponents[i];
+        //    $("#opponent" + i + "-name").text(opponents[i].username);
+        //    $("#opponent" + i + "-raiting").text(opponents[i].raiting);
+        //    $("#opponent" + i).show('slow');
+        //}
     };
 
     var fillWordList = function (words, player) {

@@ -1,5 +1,7 @@
 package com.erudit;
 
+import com.erudit.data.UserDB;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +33,27 @@ public class LoginServlet extends HttpServlet {
         view("login", request, response);
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+
+        HttpSession httpSession = request.getSession();
+
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+
+        User user = UserDB.select(email, password);
+        if(user != null) {
+            httpSession.setAttribute("user", user);
+            redirect("/start", request, response);
+        }
+    }
+
     private void view(String view, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/WEB-INF/jsp/view/"+view+".jsp").forward(request, response);
+    }
+
+    private void redirect(String path, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + path));
     }
 }
