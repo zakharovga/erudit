@@ -377,12 +377,12 @@
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                 </div>
                                 <div class="rating">
-                                    <span class="glyphicon glyphicon-star" aria-hidden="true"></span>2735
+                                    <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="player-raiting"></span>
                                 </div>
                             </div>
                             <div class="col-lg-10">
                                 <div class="player-name">
-                                    <span id="player-name">${user.username}</span>
+                                    <span id="player-name"></span>
                                 </div>
                                 <div>
                                     <span>Очки: </span><span class="points" id="player-points">0</span>
@@ -465,9 +465,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h3>BLABLABLABLABLABLABLABLABLABLABLABLABLABLA</h3>
+                    <h3>Соединение закрыто</h3>
                 </div>
-                <div class="modal-body" id="modal-error-body">A blah error occurred.</div>
+                <div class="modal-body" id="modal-error-body"></div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" data-dismiss="modal">OK</button>
                 </div>

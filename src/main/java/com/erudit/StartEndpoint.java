@@ -8,8 +8,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,7 +34,6 @@ public class StartEndpoint {
 
     private void openConnection(Session session, HttpSession httpSession) {
         User user = (User) httpSession.getAttribute("user");
-        String sessionId = httpSession.getId();
 
         List<String> actionList = session.getRequestParameterMap().get("action");
 
@@ -43,15 +41,15 @@ public class StartEndpoint {
             String action = actionList.get(0);
 
             if ("CREATE".equalsIgnoreCase(action)) {
-                createGame(session, sessionId, user);
+                createGame(session, httpSession, user);
 
             } else if ("JOIN".equalsIgnoreCase(action)) {
-                joinGame(session, sessionId, user);
+                joinGame(session, httpSession, user);
             }
         }
     }
 
-    private void createGame(Session session, String httpSessionId, User user) {
+    private void createGame(Session session, HttpSession httpSession, User user) {
 
         String username = user.getUsername();
         Player creator = new Player(user);
@@ -59,7 +57,7 @@ public class StartEndpoint {
         Game game = Game.queueGame();
         long gameId = game.getGameId();
         game.addSession(session, creator);
-        game.addHttpSession(httpSessionId, creator);
+        game.addHttpSession(httpSession.getId(), creator);
         game.setCreator(user.getUsername());
 
         Game oldGame = GameEndpoint.getGame(username);
@@ -72,9 +70,11 @@ public class StartEndpoint {
         GameEndpoint.addGame(gameId, game);
         GameEndpoint.addSession(session, game);
         GameEndpoint.addUsername(username, game);
+        httpSession.setAttribute("WS_SESSION", Collections.singletonList(session));
+        SessionRegistry.addSession(session, httpSession);
     }
 
-    private void joinGame(Session session, String httpSessionId, User user) {
+    private void joinGame(Session session, HttpSession httpSession, User user) {
         List<String> gameIdList = session.getRequestParameterMap().get("gameid");
 
         long gameId = Long.parseLong(gameIdList.get(0));
@@ -88,7 +88,7 @@ public class StartEndpoint {
                 e.printStackTrace();
             }
         } else {
-            game.joinPlayer(session, httpSessionId, user);
+            game.joinPlayer(session, httpSession, user);
         }
     }
 

@@ -18,9 +18,7 @@ $(document).ready(function () {
     var $modalWaiting = $('#modal-waiting');
     var $modalInfo = $('#modal-info');
 
-    var $gameCells = $('.game-cell');
-    var $letterContainer = $('.letter-container>div');
-    var $droppable = $gameCells.add($letterContainer);
+    var $droppable = $('.letter-container>div, .game-cell');
     var $makeMoveBtn = $('#make-move-btn');
     var $changeLettersBtn = $('#change-letters-btn');
     var $changeLettersDiv = $('#change-letters-div');
@@ -168,16 +166,12 @@ $(document).ready(function () {
 
             timer.start();
 
-            $('.letter-container>div').droppable('enable');
             $modalWaiting.modal('hide');
             fillLetterContainer(message.givenLetters);
-
-            console.log("STARTED");
-
             fillPlayerInfo(message.opponents);
             toggleTurn(message.nextMove);
             if (myTurn) {
-                $gameCells.droppable('enable');
+                $droppable.droppable('enable');
                 $changeLettersBtn.removeClass('disabled');
             }
             return;
@@ -198,6 +192,11 @@ $(document).ready(function () {
 
             fillLetterContainer(message.letters);
             fillWordList(message.words, username);
+
+            if(myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
             return;
         }
         if (message.action == 'OPPONENT_MADE_MOVE') {
@@ -220,7 +219,7 @@ $(document).ready(function () {
 
             if (myTurn) {
                 $changeLettersBtn.removeClass('disabled');
-                $gameCells.droppable('enable');
+                $droppable.droppable('enable');
             }
             return;
         }
@@ -232,6 +231,11 @@ $(document).ready(function () {
             timer.start();
 
             replaceChangedLetters(message.changedLetters);
+
+            if(myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
             return;
         }
         if (message.action == 'OPPONENT_CHANGED_LETTERS') {
@@ -242,7 +246,7 @@ $(document).ready(function () {
 
             if (myTurn) {
                 $changeLettersBtn.removeClass('disabled');
-                $gameCells.droppable('enable');
+                $droppable.droppable('enable');
             }
             return;
         }
@@ -257,36 +261,33 @@ $(document).ready(function () {
 
             $modalInfo.modal('hide');
 
+            var $letterLine = $('.letter-line');
+            $letterLine.draggable('enable');
+            $makeMoveBtn.addClass('disabled');
+
+            if (beforeToggle) {
+                $droppable.droppable('disable');
+                if (moveType === 'CHANGE_LETTERS') {
+                    $('#letter-line').tooltip('destroy');
+                    for (var i = 0; i < changedLetters.length; i++) {
+                        changedLetters[i].removeClass('selected');
+                    }
+                    $changeLettersDiv.hide('slow');
+                    $letterLine.unbind('click');
+                }
+                else if (moveType === 'MAKE_WORDS') {
+                    move = [];
+                    for (var j = 0; j < abortMove.length; j++) {
+                        moveAnimate(abortMove[j].$letter, abortMove[j].$initialParent);
+                    }
+                    $makeMoveBtn.addClass('disabled');
+                    abortMove = [];
+                    $('.move-made').removeClass('move-made');
+                }
+            }
             if (myTurn) {
                 $changeLettersBtn.removeClass('disabled');
-                $gameCells.droppable('enable');
-            }
-            else {
-                if (beforeToggle) {
-                    move = [];
-                    $modalInfo.modal('hide');
-                    $changeLettersBtn.addClass('disabled');
-                    $gameCells.droppable('disable');
-                    if (moveType === 'CHANGE_LETTERS') {
-                        $('#letter-line').tooltip('destroy');
-                        for (var i = 0; i < changedLetters.length; i++) {
-                            changedLetters[i].removeClass('selected');
-                        }
-                        $changeLettersDiv.hide('slow');
-                        var $letterLine = $('.letter-line');
-                        $letterLine.unbind('click');
-                        $letterLine.draggable('enable');
-                    }
-                    else if (moveType === 'MAKE_WORDS') {
-                        $('.letter-line').draggable('enable');
-                        for (var j = 0; j < abortMove.length; j++) {
-                            moveAnimate(abortMove[j].$letter, abortMove[j].$initialParent);
-                        }
-                        $makeMoveBtn.addClass('disabled');
-                        abortMove = [];
-                        $('.move-made').removeClass('move-made');
-                    }
-                }
+                $droppable.droppable('enable');
             }
             return;
         }
@@ -374,21 +375,28 @@ $(document).ready(function () {
                     $("#opponent" + i).addClass('player-disconnected');
                 }
             }
+            if(message.nextMove !== null) {
+                toggleTurn(message.nextMove);
+                if(myTurn) {
+                    $changeLettersBtn.removeClass('disabled');
+                    $droppable.droppable('enable');
+                }
+                timer.stop();
+                timer.start();
+            }
         }
     };
 
     var fillPlayerInfo = function (opponents) {
-
-        console.log(opponents);
-
-        //$("#player-name").text(username);
-        //$("#player").show('slow');
-        //for (var i = 0; i < opponents.length; i++) {
-        //    playerOpponents[i] = opponents[i];
-        //    $("#opponent" + i + "-name").text(opponents[i].username);
-        //    $("#opponent" + i + "-raiting").text(opponents[i].raiting);
-        //    $("#opponent" + i).show('slow');
-        //}
+        $('#player-name').text(username);
+        $('#player-raiting').text(player.raiting);
+        $('#player').show('slow');
+        for (var i = 0; i < opponents.length; i++) {
+            playerOpponents[i] = opponents[i];
+            $('#opponent' + i + '-name').text(opponents[i].username);
+            $('#opponent' + i + '-raiting').text(opponents[i].raiting);
+            $('#opponent' + i).show('slow');
+        }
     };
 
     var fillWordList = function (words, player) {
@@ -454,11 +462,7 @@ $(document).ready(function () {
 
             webSocket.send(JSON.stringify({action: "PLAYER_MADE_MOVE", move: move}));
 
-            var $moveMade = $('.move-made');
-            //$moveMade.draggable('disable');
-
-            $gameCells.droppable('disable');
-            $letterContainer.droppable('disable');
+            $droppable.droppable('disable');
         }
     };
 
@@ -504,7 +508,7 @@ $(document).ready(function () {
             $sendChangedLettersBtn.addClass('disabled');
             $('#letter-line').tooltip('destroy');
             $changeLettersDiv.hide('slow');
-            $gameCells.droppable('disable');
+            $droppable.droppable('disable');
             $('.letter-line').unbind('click');
 
             for (var i = 0; i < changedLetters.length; i++) {

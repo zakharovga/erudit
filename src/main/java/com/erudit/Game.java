@@ -3,6 +3,7 @@ package com.erudit;
 import com.erudit.exceptions.GameException;
 import com.erudit.messages.*;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
 import javax.websocket.EncodeException;
 import javax.websocket.Session;
@@ -52,7 +53,7 @@ public class Game {
         }
     }
 
-    public void joinPlayer(Session session, String httpSessionId, User user) {
+    public void joinPlayer(Session session, HttpSession httpSession, User user) {
         String username = user.getUsername();
 
         synchronized (lock) {
@@ -95,11 +96,12 @@ public class Game {
 
                 Player joiner = new Player(user);
                 addSession(session, joiner);
-                addHttpSession(httpSessionId, joiner);
+                addHttpSession(httpSession.getId(), joiner);
 
                 GameEndpoint.addUsername(username, this);
                 GameEndpoint.addSession(session, this);
-
+                httpSession.setAttribute("WS_SESSION", Collections.singletonList(session));
+                SessionRegistry.addSession(session, httpSession);
 
                 List<Opponent> opponents = new ArrayList<>();
 
@@ -125,6 +127,14 @@ public class Game {
             removeSession(session);
             GameEndpoint.removeSession(session);
             GameEndpoint.removeUsername(username);
+
+            HttpSession httpSession = SessionRegistry.getHttpSession(session);
+            if(httpSession != null) {
+                try {
+                    httpSession.removeAttribute("WS_SESSION");
+                }
+                catch (IllegalStateException ignored) { }
+            }
 
             if(getGameStatus() == GameStatus.REDIRECTING) {
                 return;
@@ -217,7 +227,6 @@ public class Game {
         Message message = new GameOverMessage(gameResult);
 
         sendJsonMessage(message);
-        System.out.println("GAME FINISHED");
     }
 
     private List<PlayerResult> getGameResult() {
@@ -354,12 +363,14 @@ public class Game {
         return eruditGame.checkActivePlayers();
     }
 
-    public void setActiveAndCheck(Session session, Player player) {
+    public void setActiveAndCheck(Session session, HttpSession httpSession, Player player) {
         synchronized(lock) {
             setPlayerStatus(player, PlayerStatus.ACTIVE);
             addSession(session, player);
             GameEndpoint.addSession(session, this);
             GameEndpoint.addActiveGame(gameId, this);
+            httpSession.setAttribute("WS_SESSION", Collections.singletonList(session));
+            SessionRegistry.addSession(session, httpSession);
 
             if (checkActivePlayers()) {
                 start();

@@ -74,9 +74,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h3>Error</h3>
+                    <h3>Соединение закрыто</h3>
                 </div>
-                <div class="modal-body" id="modal-error-body">A blah error occurred.</div>
+                <div class="modal-body" id="modal-error-body"></div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" data-dismiss="modal">OK</button>
                 </div>

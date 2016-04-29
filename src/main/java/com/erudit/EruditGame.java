@@ -37,9 +37,10 @@ public class EruditGame {
     public boolean skipTurn(Player player) {
         Integer n = skippedTurns.get(player);
         skippedTurns.put(player, ++n);
-        for(Integer k : skippedTurns.values()) {
-            if(k < 2)
-                return false;
+        for(Map.Entry<Player, Integer> entry : skippedTurns.entrySet()) {
+            if(entry.getKey().getPlayerStatus() == PlayerStatus.ACTIVE)
+                if(entry.getValue() < 2)
+                    return false;
         }
         return true;
     }

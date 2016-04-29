@@ -57,7 +57,7 @@ public class GameEndpoint {
                 }
             }
             else {
-                game.setActiveAndCheck(session, player);
+                game.setActiveAndCheck(session, httpSession, player);
             }
         }
     }

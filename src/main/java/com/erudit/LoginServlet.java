@@ -37,14 +37,16 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
-        HttpSession httpSession = request.getSession();
-
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
         User user = UserDB.select(email, password);
         if(user != null) {
-            httpSession.setAttribute("user", user);
+            HttpSession oldHttpSession = request.getSession();
+            oldHttpSession.invalidate();
+
+            HttpSession newHttpSession = request.getSession();
+            newHttpSession.setAttribute("user", user);
             redirect("/start", request, response);
         }
     }
