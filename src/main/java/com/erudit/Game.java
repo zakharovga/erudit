@@ -158,8 +158,10 @@ public class Game {
                     if(getNextMove() == player) {
                         nextMove();
                         timer.start();
+                        sendJsonMessageToOpponents(session, new OpponentQuitMessage(username, getNextMove().getUsername()));
                     }
-                    sendJsonMessageToOpponents(session, new OpponentQuitMessage(username, getNextMove().getUsername()));
+                    else
+                        sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
                 }
             }
         }

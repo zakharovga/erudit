@@ -376,6 +376,7 @@ $(document).ready(function () {
                 }
             }
             if(message.nextMove !== null) {
+                console.log(message);
                 toggleTurn(message.nextMove);
                 if(myTurn) {
                     $changeLettersBtn.removeClass('disabled');

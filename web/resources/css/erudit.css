@@ -202,6 +202,48 @@
     text-align: center;
 }
 
+.pending-game-div {
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease 0s, color 0.15s ease 0s, box-shadow 0.3s ease 0s, opacity 0.3s ease 0s;
+}
+
+.pending-game-div:hover {
+    background-color: #eeeeee;
+    -moz-box-shadow: 0px 0px 10px 5px #66bcff;
+    -webkit-box-shadow: 0px 0px 10px 5px #66bcff;
+    box-shadow: 0px 0px 10px 5px #66bcff;
+}
+
+.pending-game-div .panel-body{
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.pending-game-div i{
+    padding-right: 10px;
+    color: #aaa;
+}
+
+.pending-game-user-icon {
+    height: 40px;
+    font-size: 25px;
+    text-align: left;
+}
+
+.pending-game-user-icon .glyphicon {
+    line-height: 40px;
+    padding-right: 2px;
+}
+
+.busy-icon {
+    color: #66bcff;
+}
+
+.free-icon {
+    color: #aaa;
+}
+
 #players-container .panel-body, #players-container .col-lg-5, #players-container .col-lg-10,
 #players-container-modal .panel-body, #players-container-modal .col-lg-5, #players-container-modal .col-lg-10 {
     padding: 0px 5px;
@@ -249,7 +291,14 @@
 
 #modal-players .status {
     font-size: 24px;
+}
+
+.status-not-ready {
     color: #e7ecef;
+}
+
+.status-ready {
+    color: #56b2f4;
 }
 
 #modal-players .player-name {

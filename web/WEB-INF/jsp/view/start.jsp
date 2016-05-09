@@ -55,18 +55,37 @@
         <div>
             <a href="#" id="create-game-btn" class="btn btn-primary btn-lg btn-block">Создать игру</a>
             <br/>
-            <div class="list-group">
+            <div class="game-list">
                 <c:choose>
                     <c:when test="${fn:length(pendingGames) == 0}">
                         <i>В настоящий момент не создано ни одной игры.</i>
                     </c:when>
                     <c:otherwise>
                         <c:forEach items="${pendingGames}" var="e">
-                            <a href="#" gameId="${e.key}" class="list-group-item join-game-btn">Создал: ${e}</a>
+                            <div gameId="${e.key}" class="pending-game-div panel panel-default">
+                                <div class="panel-body empty-player-place">
+                                    <div class="row vertical-align">
+                                        <div class="col-lg-3">
+                                            <div class="pending-game-user-icon">
+                                                <span class="glyphicon glyphicon-user free-icon" aria-hidden="true"></span><span class="glyphicon glyphicon-user free-icon" aria-hidden="true"></span><span class="glyphicon glyphicon-user free-icon" aria-hidden="true"></span><span class="glyphicon glyphicon-user free-icon" aria-hidden="true"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <i>Создал:</i><span class="player-name">${e.value.creator}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </c:forEach>
                     </c:otherwise>
                 </c:choose>
             </div>
+            <nav>
+                <ul id="pager" class="pager">
+                    <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Предыдущие</a></li>
+                    <li class="next disabled"><a href="#">Следующие <span aria-hidden="true">&rarr;</span></a></li>
+                </ul>
+            </nav>
         </div>
     </div>
     <div id="modal-error" class="modal fade">
@@ -127,13 +146,13 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <div>
-                                            <span class="status glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            <span id="player-status" class="status status-not-ready glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="opponent0-modal" class="panel panel-default">
+                        <div id="opponent0-modal" class="opponent-modal panel panel-default">
                             <div class="panel-body empty-player-place">
                                 <div class="row vertical-align">
                                     <div class="col-lg-3">
@@ -141,7 +160,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>2735
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent0-raiting"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -149,13 +168,13 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <div>
-                                            <span class="status glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            <span id="opponent0-status" class="status status-not-ready glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="opponent1-modal" class="panel panel-default">
+                        <div id="opponent1-modal" class="opponent-modal panel panel-default">
                             <div class="panel-body empty-player-place">
                                 <div class="row vertical-align">
                                     <div class="col-lg-3">
@@ -163,7 +182,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>2735
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent1-raiting"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -171,13 +190,13 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <div>
-                                            <span class="status glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            <span id="opponent1-status" class="status status-not-ready glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="opponent2-modal" class="panel panel-default">
+                        <div id="opponent2-modal" class="opponent-modal panel panel-default">
                             <div class="panel-body empty-player-place">
                                 <div class="row vertical-align">
                                     <div class="col-lg-3">
@@ -185,7 +204,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>2735
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent2-raiting"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -193,7 +212,7 @@
                                     </div>
                                     <div class="col-lg-2">
                                         <div>
-                                            <span class="status glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            <span id="opponent2-status" class="status status-not-ready glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -204,18 +223,16 @@
                 <div class="modal-footer">
 
                     <div id="ready-radio" class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary">
-                            <input type="radio" name="options" id="option1" autocomplete="off"> ГОТОВ
+                        <label id="ready-label" class="btn btn-primary">
+                            <input type="radio" name="options" id="option1" autocomplete="off"><span class="glyphicon glyphicon-ok"></span> Готов
                         </label>
-                        <label class="btn btn-primary active">
-                            <input type="radio" name="options" id="option2" autocomplete="off"> НЕ ГОТОВ
+                        <label id="not-ready-label" class="btn btn-primary active">
+                            <input type="radio" name="options" id="option2" autocomplete="off" checked><span class="glyphicon glyphicon-remove"></span> Не готов
                         </label>
                     </div>
 
-                    <%--<button id="ready-btn" type="button" class="btn btn-default">Готов!</button>--%>
                     <button id="cancel" type="button" class="btn btn-default">Отмена</button>
                 </div>
-                <%--<button id="start" type="button" class="btn btn-success hidden">Success</button>--%>
             </div>
         </div>
     </div>

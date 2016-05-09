@@ -28,14 +28,32 @@ $(document).ready(function () {
         return;
     }
 
+    var setPlayerReady = function(ready) {
+        if(ready) {
+            $('#player-status').removeClass('status-not-ready glyphicon-remove').addClass('status-ready glyphicon-ok');
+            $('#player-modal').addClass('selected');
+        }
+        else {
+            $('#player-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
+            $('#player-modal').removeClass('selected');
+        }
+    };
+
+    var setOpponentReady = function(ready) {
+
+    };
+
     var joinPlayer = function (opponents) {
-        playerOpponents = opponents;
 
         for (var i = 0; i < opponents.length; i++) {
-            $("#opponent" + i + "-name-modal").text(opponents[i].user.username);
-            var $opponent = $("#opponent" + i + "-modal");
+            playerOpponents[i] = opponents[i];
+
+            $('#opponent' + i + '-name-modal').text(opponents[i].user.username);
+            $('#opponent' + i + '-raiting').text(opponents[i].user.raiting);
+            var $opponent = $('#opponent' + i + '-modal');
             if (opponents[i].ready == true) {
                 $opponent.addClass('selected');
+                $('#opponent' + i + '-status').removeClass('status-not-ready glyphicon-remove').addClass('status-ready glyphicon-ok');
             }
             $opponent.fadeIn('slow');
         }
@@ -47,8 +65,9 @@ $(document).ready(function () {
         playerOpponents.push(opponent);
         var lastIndex = playerOpponents.length - 1;
 
-        $("#opponent" + lastIndex + "-name-modal").text(player.username);
-        $("#opponent" + lastIndex + "-modal").fadeIn('slow');
+        $('#opponent' + lastIndex + '-raiting').text(player.raiting);
+        $('#opponent' + lastIndex + '-name-modal').text(player.username);
+        $('#opponent' + lastIndex + '-modal').fadeIn('slow');
     };
 
     var createWebSocket = function (action, gameId) {
@@ -75,6 +94,7 @@ $(document).ready(function () {
             if (playerOpponents[i].user.username == opponent) {
                 deletedIndex = i;
                 $opponent.removeClass('selected');
+                $('#opponent' + i + '-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
             }
             $opponent.hide();
         }
@@ -101,6 +121,8 @@ $(document).ready(function () {
             var message = JSON.parse(event.data);
             if (message.action == 'PLAYER_JOINED') {
                 $modalWaiting.modal('hide');
+                $('#player-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
+                $('#player-modal').removeClass('selected');
                 $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
                 joinPlayer(message.opponents);
                 return;
@@ -124,9 +146,11 @@ $(document).ready(function () {
                 }
                 if (ready) {
                     $('#opponent' + i + '-modal').addClass('selected');
+                    $('#opponent' + i + '-status').removeClass('status-not-ready glyphicon-remove').addClass('status-ready glyphicon-ok');
                 }
                 else {
                     $('#opponent' + i + '-modal').removeClass('selected');
+                    $('#opponent' + i + '-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
                 }
             }
             if (message.action == 'PLAYER_REDIRECTED') {
@@ -135,10 +159,12 @@ $(document).ready(function () {
         };
 
         window.onbeforeunload = function () {
+            webSocket.onclose = function(event) {};
             webSocket.close();
         };
 
         webSocket.onclose = function (event) {
+            playerOpponents = [];
             if (!event.wasClean) {
                 $modalPlayers.modal('hide');
                 $modalWaiting.modal('hide');
@@ -154,15 +180,20 @@ $(document).ready(function () {
         };
 
         webSocket.onerror = function (event) {
+            playerOpponents = [];
             $modalWaiting.modal('hide');
             $modalErrorBody.text('Произошла ошибка ' + event.data);
             $modalError.modal('show');
         };
     };
 
-    var createGame = function () {
+    var createGame = function(event) {
 
+        event.preventDefault();
         try {
+            setPlayerReady(false);
+            $('#ready-label').removeClass('active');
+            $('#not-ready-label').addClass('active');
             $modalWaiting.modal('show');
 
             webSocket = createWebSocket('CREATE');
@@ -198,30 +229,107 @@ $(document).ready(function () {
         }
     };
 
-
-    $("#create-game-btn").click(createGame);
-
-    $(".join-game-btn").click(function () {
-        joinGame($(this).attr('gameId'));
+    $('#pager').find('li a').click(function(e) {
+        e.preventDefault();
     });
 
-    var setReady = function (ready) {
-        if (ready) {
-            $('#player-modal').addClass('selected');
-            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: true}));
+    var pageList = function($list, n) {
+        var beginRow = 0;
+
+        var $rows = $list.children();
+        var numRows = $rows.size();
+        var numPages = Math.ceil(numRows/n);
+
+        var $pager = $('#pager');
+        var $previous = $pager.children().eq(0);
+        var $next = $pager.children().eq(1);
+
+        $rows.hide();
+        $rows.slice(0, n).show();
+
+        if(numRows > n) {
+            $next.removeClass('disabled');
         }
-        else {
-            $('#player-modal').removeClass('selected');
-            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: false}));
-        }
+
+        var next = function() {
+            $previous.removeClass('disabled');
+            beginRow += n;
+            if(beginRow + n < numRows) {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                endRow = numRows - 1;
+                $rows.css('display','none').slice(beginRow).show();
+                $next.addClass('disabled');
+            }
+            console.log(beginRow);
+            console.log(endRow);
+        };
+
+        var previous = function() {
+            $next.removeClass('disabled');
+            beginRow -= n;
+            if(beginRow > 0) {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+                $previous.addClass('disabled');
+            }
+            console.log(beginRow);
+            console.log(endRow);
+        };
+
+        $next.click(function(){
+            if($(this).hasClass('disabled')) {
+                return false;
+            }
+            next();
+            return false;
+        });
+
+        $previous.click(function(){
+            if($(this).hasClass('disabled')) {
+                return false;
+            }
+            previous();
+            return false;
+        });
     };
+
+    pageList($('#game-list'), 10);
+
+
+    $('#create-game-btn').click(createGame);
+
+    $('.pending-game-div').click(function(event) {
+        joinGame($(this).attr('gameId'));
+        return false;
+    });
 
     $('#ready-radio').find(':input').change(function () {
         if ($(this).is('#option1')) {
-            setReady(true);
+            setPlayerReady(true);
+            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: true}));
         }
         else {
-            setReady(false);
+            setPlayerReady(false);
+            webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: false}));
         }
+    });
+
+    $('#cancel').click(function() {
+        playerOpponents = [];
+        $('.opponent-modal').hide();
+        $('#ready-label').removeClass('active');
+        $('#not-ready-label').addClass('active');
+        $('#option2').attr('checked', 'checked');
+        $('#option1').removeAttr('checked');
+        webSocket.onclose = function(event) {};
+        webSocket.close();
+        $modalPlayers.modal('hide');
     });
 });
