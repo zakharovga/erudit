@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Chewy);
+/*@import url(https://fonts.googleapis.com/css?family=Chewy);*/
 
 .player-disconnected {
     background-color: #eeeeee; !important;
@@ -313,7 +313,13 @@
     height: 275px;
 }
 
-#modal-players .panel {
+/*#modal-players .panel {*/
+    /*z-index: 100;*/
+    /*position: relative;*/
+    /*display: none;*/
+/*}*/
+
+#player-modal, .opponent-modal {
     z-index: 100;
     position: relative;
     display: none;

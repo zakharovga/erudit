@@ -225,6 +225,8 @@ public class Game {
     }
 
     private void gameOver() {
+
+        timer.stop();
         List<PlayerResult> gameResult = getGameResult();
         Message message = new GameOverMessage(gameResult);
 
@@ -569,6 +571,10 @@ public class Game {
                 task = new Task();
                 scheduledFuture = timer.scheduleAtFixedRate(task, INTERVAL, INTERVAL, TimeUnit.SECONDS);
             }
+        }
+
+        public void stop() {
+            timer.shutdown();
         }
 
         private class Task implements Runnable {

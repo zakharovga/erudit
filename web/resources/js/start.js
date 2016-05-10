@@ -18,6 +18,8 @@ $(document).ready(function () {
     var $modalWaiting = $("#modal-waiting");
     var $modalPlayers = $("#modal-players");
 
+    var $pendingGameDivs = $('.pending-game-div');
+
     var webSocket;
 
     if (!("WebSocket" in window)) {
@@ -39,8 +41,15 @@ $(document).ready(function () {
         }
     };
 
-    var setOpponentReady = function(ready) {
-
+    var setOpponentReady = function(index, ready) {
+        if(ready) {
+            $('#opponent' + index + '-status').removeClass('status-not-ready glyphicon-remove').addClass('status-ready glyphicon-ok');
+            $('#opponent' + index + '-modal').addClass('selected');
+        }
+        else {
+            $('#opponent' + index + '-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
+            $('#opponent' + index + '-modal').removeClass('selected');
+        }
     };
 
     var joinPlayer = function (opponents) {
@@ -51,10 +60,7 @@ $(document).ready(function () {
             $('#opponent' + i + '-name-modal').text(opponents[i].user.username);
             $('#opponent' + i + '-raiting').text(opponents[i].user.raiting);
             var $opponent = $('#opponent' + i + '-modal');
-            if (opponents[i].ready == true) {
-                $opponent.addClass('selected');
-                $('#opponent' + i + '-status').removeClass('status-not-ready glyphicon-remove').addClass('status-ready glyphicon-ok');
-            }
+            setOpponentReady(i, opponents[i].ready);
             $opponent.fadeIn('slow');
         }
     };
@@ -121,8 +127,6 @@ $(document).ready(function () {
             var message = JSON.parse(event.data);
             if (message.action == 'PLAYER_JOINED') {
                 $modalWaiting.modal('hide');
-                $('#player-status').removeClass('status-ready glyphicon-ok').addClass('status-not-ready glyphicon-remove');
-                $('#player-modal').removeClass('selected');
                 $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
                 joinPlayer(message.opponents);
                 return;
@@ -191,9 +195,6 @@ $(document).ready(function () {
 
         event.preventDefault();
         try {
-            setPlayerReady(false);
-            $('#ready-label').removeClass('active');
-            $('#not-ready-label').addClass('active');
             $modalWaiting.modal('show');
 
             webSocket = createWebSocket('CREATE');
@@ -229,6 +230,10 @@ $(document).ready(function () {
         }
     };
 
+    $pendingGameDivs.each(function() {
+
+    });
+
     $('#pager').find('li a').click(function(e) {
         e.preventDefault();
     });
@@ -263,8 +268,6 @@ $(document).ready(function () {
                 $rows.css('display','none').slice(beginRow).show();
                 $next.addClass('disabled');
             }
-            console.log(beginRow);
-            console.log(endRow);
         };
 
         var previous = function() {
@@ -279,8 +282,6 @@ $(document).ready(function () {
                 $rows.css('display','none').slice(beginRow, endRow + 1).show();
                 $previous.addClass('disabled');
             }
-            console.log(beginRow);
-            console.log(endRow);
         };
 
         $next.click(function(){
@@ -302,7 +303,6 @@ $(document).ready(function () {
 
     pageList($('#game-list'), 10);
 
-
     $('#create-game-btn').click(createGame);
 
     $('.pending-game-div').click(function(event) {
@@ -311,7 +311,7 @@ $(document).ready(function () {
     });
 
     $('#ready-radio').find(':input').change(function () {
-        if ($(this).is('#option1')) {
+        if ($(this).is('#ready-input')) {
             setPlayerReady(true);
             webSocket.send(JSON.stringify({action: 'OPPONENT_READY', readyOpponent: player.username, ready: true}));
         }
@@ -323,11 +323,15 @@ $(document).ready(function () {
 
     $('#cancel').click(function() {
         playerOpponents = [];
-        $('.opponent-modal').hide();
         $('#ready-label').removeClass('active');
         $('#not-ready-label').addClass('active');
-        $('#option2').attr('checked', 'checked');
-        $('#option1').removeAttr('checked');
+        $('#not-ready-input').attr('checked', 'checked');
+        $('#ready-input').removeAttr('checked');
+        setPlayerReady(false);
+        for(var i = 0; i < playerOpponents.length; i++) {
+            setOpponentReady(i, false);
+        }
+        $('#player-modal, .opponent-modal').hide();
         webSocket.onclose = function(event) {};
         webSocket.close();
         $modalPlayers.modal('hide');

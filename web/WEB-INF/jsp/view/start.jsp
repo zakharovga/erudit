@@ -62,7 +62,7 @@
                     </c:when>
                     <c:otherwise>
                         <c:forEach items="${pendingGames}" var="e">
-                            <div gameId="${e.key}" class="pending-game-div panel panel-default">
+                            <div gameId="${e.key}" numPlayers="${e.value.size()}" class="pending-game-div panel panel-default">
                                 <div class="panel-body empty-player-place">
                                     <div class="row vertical-align">
                                         <div class="col-lg-3">
@@ -224,10 +224,10 @@
 
                     <div id="ready-radio" class="btn-group" data-toggle="buttons">
                         <label id="ready-label" class="btn btn-primary">
-                            <input type="radio" name="options" id="option1" autocomplete="off"><span class="glyphicon glyphicon-ok"></span> Готов
+                            <input type="radio" name="options" id="ready-input" autocomplete="off"><span class="glyphicon glyphicon-ok"></span> Готов
                         </label>
                         <label id="not-ready-label" class="btn btn-primary active">
-                            <input type="radio" name="options" id="option2" autocomplete="off" checked><span class="glyphicon glyphicon-remove"></span> Не готов
+                            <input type="radio" name="options" id="not-ready-input" autocomplete="off" checked><span class="glyphicon glyphicon-remove"></span> Не готов
                         </label>
                     </div>
 
