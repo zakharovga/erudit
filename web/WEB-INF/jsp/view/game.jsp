@@ -49,21 +49,23 @@
     </div>
 </nav>
 <div class="container">
-    <div class="game-container row">
+    <div id="game-container" class="row">
         <div class="col-lg-3">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div id="status">
-						<span id="timer" class="badge">00:35</span>
+						<span id="timer" class="badge">01:00</span>
 						<span id="next-turn"></span>
 					</div>
                 </div>
             </div>
-            <ul id="words" class="list-group">
+            <div id="words-panel" class="panel panel-default">
+                <ul id="words" class="list-group">
 
-            </ul>
+                </ul>
+            </div>
         </div>
-        <div class="col-lg-9">
+        <div id="game-col" class="col-lg-9">
             <div id="board">
                 <div class="board-row">
                     <div id="r0c0" class="game-cell red-cell"></div>

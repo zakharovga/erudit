@@ -1,5 +1,22 @@
 /*@import url(https://fonts.googleapis.com/css?family=Chewy);*/
 
+#game-container {
+    display: flex;
+}
+
+#game-container .col-lg-3 {
+    align-items: stretch;
+    flex: 1;
+}
+
+#game-col {
+    -moz-box-shadow: 10px 0px 5px -2px #888;
+    -webkit-box-shadow: 10px 0px 5px -2px #888;
+    box-shadow: 10px 0px 5px -2px #888;
+}
+
+#words-panel {}
+
 .player-disconnected {
     background-color: #eeeeee; !important;
     color: #bbbbbb; !important;
@@ -238,6 +255,7 @@
 
 .busy-icon {
     color: #66bcff;
+    text-shadow: 0 0 10px #66bcff;
 }
 
 .free-icon {

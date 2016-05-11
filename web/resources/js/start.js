@@ -231,7 +231,11 @@ $(document).ready(function () {
     };
 
     $pendingGameDivs.each(function() {
-
+        var $this = $(this);
+        var numPlayers = $this.attr('numPlayers');
+        for(var i = 0; i < numPlayers; i++) {
+            $this.find('span').eq(i).removeClass('free-icon').addClass('busy-icon');
+        }
     });
 
     $('#pager').find('li a').click(function(e) {
@@ -305,7 +309,7 @@ $(document).ready(function () {
 
     $('#create-game-btn').click(createGame);
 
-    $('.pending-game-div').click(function(event) {
+    $pendingGameDivs.click(function(event) {
         joinGame($(this).attr('gameId'));
         return false;
     });
