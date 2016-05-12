@@ -1,21 +1,20 @@
 /*@import url(https://fonts.googleapis.com/css?family=Chewy);*/
 
-#game-container {
-    display: flex;
+.last-word {
+    -moz-box-shadow: 0px 0px 10px 5px #66bcff !important;
+    -webkit-box-shadow: 0px 0px 10px 5px #66bcff !important;
+    box-shadow: 0px 0px 10px 5px #66bcff !important;
 }
 
-#game-container .col-lg-3 {
-    align-items: stretch;
-    flex: 1;
+#words li{
+    margin-bottom: 3px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-#game-col {
-    -moz-box-shadow: 10px 0px 5px -2px #888;
-    -webkit-box-shadow: 10px 0px 5px -2px #888;
-    box-shadow: 10px 0px 5px -2px #888;
+#words-panel div {
+    height: 510px;
+    box-shadow: 0 8px 6px -6px grey;
 }
-
-#words-panel {}
 
 .player-disconnected {
     background-color: #eeeeee; !important;

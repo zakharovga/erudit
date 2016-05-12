@@ -263,6 +263,7 @@ $(document).ready(function () {
         var next = function() {
             $previous.removeClass('disabled');
             beginRow += n;
+            var endRow = 0;
             if(beginRow + n < numRows) {
                 endRow = beginRow + n - 1;
                 $rows.css('display','none').slice(beginRow, endRow + 1).show();
@@ -277,6 +278,7 @@ $(document).ready(function () {
         var previous = function() {
             $next.removeClass('disabled');
             beginRow -= n;
+            var endRow = 0;
             if(beginRow > 0) {
                 endRow = beginRow + n - 1;
                 $rows.css('display','none').slice(beginRow, endRow + 1).show();

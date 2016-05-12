@@ -99,6 +99,84 @@ $(document).ready(function () {
         return;
     }
 
+    $('#pager').find('li a').click(function(e) {
+        e.preventDefault();
+    });
+
+    var pageList = function($list, n) {
+
+        var $rows = $list.children();
+
+        var numRows = $rows.size();
+        var numPages = Math.ceil(numRows/n);
+        var toShow = (numRows % n == 0) ? n : (numRows % n);
+        var beginRow = (numPages - 1) * n;
+
+        var $pager = $('#pager');
+        var $previous = $pager.children().eq(0);
+        var $next = $pager.children().eq(1);
+
+        $rows.hide();
+
+        for(var i = 0; i < toShow; i++) {
+            var $row = $rows.eq((numPages - 1) * n + i);
+            if(!($row.hasClass('last-word'))) {
+                $row.show();
+            }
+            else {
+                $row.show('slow');
+            }
+        }
+
+        if(numRows > n) {
+            $previous.removeClass('disabled');
+        }
+
+        var next = function() {
+            $previous.removeClass('disabled');
+            beginRow += n;
+            if(beginRow + n < numRows) {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                endRow = numRows - 1;
+                $rows.css('display','none').slice(beginRow).show();
+                $next.addClass('disabled');
+            }
+        };
+
+        var previous = function() {
+            $next.removeClass('disabled');
+            beginRow -= n;
+            if(beginRow > 0) {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                endRow = beginRow + n - 1;
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+                $previous.addClass('disabled');
+            }
+        };
+
+        $next.click(function(){
+            if($(this).hasClass('disabled')) {
+                return false;
+            }
+            next();
+            return false;
+        });
+
+        $previous.click(function(){
+            if($(this).hasClass('disabled')) {
+                return false;
+            }
+            previous();
+            return false;
+        });
+    };
+
     var toggleTurn = function (player) {
         if (username == player) {
             myTurn = true;
@@ -227,6 +305,8 @@ $(document).ready(function () {
             $('.letter-line').draggable('enable');
             toggleTurn(message.nextMove);
 
+            $('.last-word').removeClass('last-word');
+
             timer.stop();
             timer.start();
 
@@ -240,6 +320,8 @@ $(document).ready(function () {
         }
         if (message.action == 'OPPONENT_CHANGED_LETTERS') {
             toggleTurn(message.nextMove);
+
+            $('.last-word').removeClass('last-word');
 
             timer.stop();
             timer.start();
@@ -401,6 +483,9 @@ $(document).ready(function () {
     };
 
     var fillWordList = function (words, player) {
+
+        $('.last-word').removeClass('last-word');
+
         var $players = $(".player-name");
         $players.each(function () {
             var $player = $(this);
@@ -411,12 +496,15 @@ $(document).ready(function () {
                     for (var word in words) {
                         if (words.hasOwnProperty(word)) {
                             var $li = $('<li/>', {class: 'list-group-item', css: {'display': 'none'}});
+                            $li.addClass('last-word');
                             var $spanValue = $('<span/>', {class: 'badge'}).text(words[word]);
                             var $spanWord = $('<span/>').text(word);
                             $spanValue.appendTo($li);
                             $spanWord.appendTo($li);
                             $li.appendTo($('#words'));
-                            $li.show('slow');
+
+                            pageList($('#words'), 3);
+
                             addedPoints = addedPoints + parseInt(words[word]);
                         }
                     }

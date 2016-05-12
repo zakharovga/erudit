@@ -50,7 +50,7 @@
 </nav>
 <div class="container">
     <div id="game-container" class="row">
-        <div class="col-lg-3">
+        <div id="left-side" class="col-lg-3">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div id="status">
@@ -60,9 +60,16 @@
                 </div>
             </div>
             <div id="words-panel" class="panel panel-default">
-                <ul id="words" class="list-group">
-
-                </ul>
+                <div>
+                    <ul id="words" class="list-group">
+                    </ul>
+                </div>
+                <nav>
+                    <ul id="pager" class="pager">
+                        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span></a></li>
+                        <li class="next disabled"><a href="#"><span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
         <div id="game-col" class="col-lg-9">
