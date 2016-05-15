@@ -53,6 +53,30 @@ public class Game {
         }
     }
 
+    public void createGame(Session session, HttpSession httpSession, User user) {
+        String username = user.getUsername();
+        Player creator = new Player(user);
+
+        addSession(session, creator);
+        addHttpSession(httpSession.getId(), creator);
+        setCreator(user.getUsername());
+
+        Game oldGame = GameEndpoint.getGame(username);
+        if (oldGame != null) {
+            Session oldSession = oldGame.getSession(username);
+            if (oldSession != null)
+                closeSession(oldSession, new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                        "Соединение разорвано, т.к. Вы начали новую игру"));
+        }
+        GameEndpoint.addGame(gameId, this);
+        GameEndpoint.addSession(session, this);
+        GameEndpoint.addUsername(username, this);
+        httpSession.setAttribute("WS_SESSION", Collections.singletonList(session));
+        SessionRegistry.addSession(session, httpSession);
+
+        sendJsonMessage(session, new PlayerCreatedGameMessage(user));
+    }
+
     public void joinPlayer(Session session, HttpSession httpSession, User user) {
         String username = user.getUsername();
 
@@ -111,7 +135,7 @@ public class Game {
                     }
                 }
 
-                PlayerJoinedMessage playerJoinedMessage = new PlayerJoinedMessage(opponents);
+                PlayerJoinedMessage playerJoinedMessage = new PlayerJoinedMessage(user, opponents);
 
                 sendJsonMessageToOpponents(session, new OpponentJoinedMessage(user));
                 sendJsonMessage(session, playerJoinedMessage);
@@ -145,13 +169,20 @@ public class Game {
                 if(getGameStatus() == GameStatus.PENDING) {
                     StartEndpoint.removePendingGame(getGameId());
                 }
+                else if(getGameStatus() == GameStatus.FINISHED) {
+                    GameEndpoint.removeActiveGame(gameId);
+                }
                 else if(getGameStatus() == GameStatus.ACTIVE) {
+                    timer.stop();
                     GameEndpoint.removeActiveGame(gameId);
                 }
                 this.setGameStatus(GameStatus.CLOSED);
             } else {
                 if(getGameStatus() == GameStatus.PENDING) {
                     sendJsonMessageToOpponents(session, new OpponentQuitMessage(username));
+                }
+                else if(getGameStatus() == GameStatus.FINISHED) {
+                    player.setPlayerStatus(PlayerStatus.DISCONNECTED);
                 }
                 else if(getGameStatus() == GameStatus.ACTIVE) {
                     player.setPlayerStatus(PlayerStatus.DISCONNECTED);
@@ -175,6 +206,7 @@ public class Game {
             if (checkTurn(session)) {
                 if (skipTurn(player)) {
                     gameOver();
+                    return;
                 }
                 if (changedLetters != null && changedLetters.size() != 0) {
                     List<Letter> newLetters = changeLetters(player, changedLetters);
@@ -226,6 +258,7 @@ public class Game {
 
     private void gameOver() {
 
+        setGameStatus(GameStatus.FINISHED);
         timer.stop();
         List<PlayerResult> gameResult = getGameResult();
         Message message = new GameOverMessage(gameResult);

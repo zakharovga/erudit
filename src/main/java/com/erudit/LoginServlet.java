@@ -41,7 +41,13 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         User user = UserDB.select(email, password);
-        if(user != null) {
+
+        if(user == null) {
+            request.setAttribute("loginError", "loginError");
+            view("login", request, response);
+            return;
+        }
+        else {
             HttpSession oldHttpSession = request.getSession();
             oldHttpSession.invalidate();
 

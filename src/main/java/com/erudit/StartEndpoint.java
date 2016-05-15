@@ -51,27 +51,8 @@ public class StartEndpoint {
 
     private void createGame(Session session, HttpSession httpSession, User user) {
 
-        String username = user.getUsername();
-        Player creator = new Player(user);
-
         Game game = Game.queueGame();
-        long gameId = game.getGameId();
-        game.addSession(session, creator);
-        game.addHttpSession(httpSession.getId(), creator);
-        game.setCreator(user.getUsername());
-
-        Game oldGame = GameEndpoint.getGame(username);
-        if (oldGame != null) {
-            Session oldSession = oldGame.getSession(username);
-            if (oldSession != null)
-                game.closeSession(oldSession, new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
-                        "Соединение разорвано, т.к. Вы начали новую игру"));
-        }
-        GameEndpoint.addGame(gameId, game);
-        GameEndpoint.addSession(session, game);
-        GameEndpoint.addUsername(username, game);
-        httpSession.setAttribute("WS_SESSION", Collections.singletonList(session));
-        SessionRegistry.addSession(session, httpSession);
+        game.createGame(session, httpSession, user);
     }
 
     private void joinGame(Session session, HttpSession httpSession, User user) {

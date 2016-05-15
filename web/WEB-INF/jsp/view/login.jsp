@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Erudit</title>
-
+    <title>Erudit :: Online</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <link rel="stylesheet" href="<c:url value="/resources/css/bootstrap.min.css" />"/>
     <link rel="stylesheet" href="<c:url value="/resources/css/erudit.css" />"/>
 
+    <script src="<c:url value="/resources/js/jquery-2.1.4.min.js" />"></script>
+    <script src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
+
 </head>
 
 <body>
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1">
@@ -55,10 +57,14 @@
         </div>
         <form method="post" action="login" class="form-signin">
             <h2 class="form-signin-heading">Вход</h2>
+
             <label for="email-input" class="sr-only">Email</label>
-            <input name="email" type="email" id="email-input" class="form-control" placeholder="Email address" required autofocus>
+            <input name="email" type="email" id="email-input" class="form-control" placeholder="Email" required autofocus>
             <label for="password-input" class="sr-only">Password</label>
-            <input name="password" type="password" id="password-input" class="form-control" placeholder="Password" required>
+            <input name="password" type="password" id="password-input" class="form-control" placeholder="Пароль" required>
+            <c:if test="${not empty requestScope.loginError}">
+                <label id="login-error-msg" class="error-msg" for="email-input">Ошибка в email или пароле</label>
+            </c:if>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" value="remember-me"> Запомнить

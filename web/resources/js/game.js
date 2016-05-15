@@ -2,6 +2,15 @@
  * Created by zakhar on 19.04.2016.
  */
 
+//$(window).bind("pageshow", function(event) {
+//    if (event.originalEvent.persisted) {
+//        alert('asfgasdfgassfg!!!!!!!!!');
+//    }
+//});
+//
+//$(window).unload(function() {});
+
+
 $(document).ready(function () {
 
     var player = {
@@ -17,6 +26,7 @@ $(document).ready(function () {
     var $modalErrorBody = $("#modal-error-body");
     var $modalWaiting = $('#modal-waiting');
     var $modalInfo = $('#modal-info');
+    var $modalGameover = $('#modal-gameover');
 
     var $droppable = $('.letter-container>div, .game-cell');
     var $makeMoveBtn = $('#make-move-btn');
@@ -103,11 +113,8 @@ $(document).ready(function () {
         e.preventDefault();
     });
 
-
-
-
     var wordPager = (function(){
-        var n = 2;
+        var n = 15;
 
         var $pager = $('#pager');
         var $previous = $pager.children().eq(0);
@@ -118,7 +125,6 @@ $(document).ready(function () {
         var numRows;
 
         var next = function() {
-
             $previous.removeClass('disabled');
             beginRow = beginRow + n;
             var endRow = beginRow + n - 1;
@@ -133,7 +139,6 @@ $(document).ready(function () {
         };
 
         var previous = function() {
-
             $next.removeClass('disabled');
             beginRow = beginRow - n;
             var endRow = beginRow + n - 1;
@@ -168,112 +173,30 @@ $(document).ready(function () {
                     }
                 }
 
+                $next.addClass('disabled');
+
                 if(numRows > n) {
                     $previous.removeClass('disabled');
                 }
 
-                $next.unbind('click').click((function(){
-                    return function() {
-                        if($(this).hasClass('disabled')) {
-                            return false;
-                        }
-                        next();
+                $next.unbind('click').click(function(){
+                    if($(this).hasClass('disabled')) {
                         return false;
-                    };
-                }()));
+                    }
+                    next();
+                    return false;
+                });
 
-                $previous.unbind('click').click((function(){
-                    return function() {
-                        if($(this).hasClass('disabled')) {
-                            return false;
-                        }
-                        previous();
+                $previous.unbind('click').click(function(){
+                    if($(this).hasClass('disabled')) {
                         return false;
-                    };
-                }()));
+                    }
+                    previous();
+                    return false;
+                });
             }
         }
     }());
-
-    //
-    //
-    //
-    //var pageList = function($list, n) {
-    //
-    //    var $rows = $list.children();
-    //
-    //    var numRows = $rows.size();
-    //    var numPages = Math.ceil(numRows/n);
-    //    var toShow = (numRows % n == 0) ? n : (numRows % n);
-    //    var beginRow = numPages * n;
-    //    var endRow;
-    //
-    //    var $pager = $('#pager');
-    //    var $previous = $pager.children().eq(0);
-    //    var $next = $pager.children().eq(1);
-    //
-    //    $rows.hide();
-    //
-    //    for(var i = 0; i < toShow; i++) {
-    //        var $row = $rows.eq((numPages - 1) * n + i);
-    //        if(!($row.hasClass('last-word'))) {
-    //            $row.show();
-    //        }
-    //        else {
-    //            $row.show('slow');
-    //        }
-    //    }
-    //
-    //    if(numRows > n) {
-    //        $previous.removeClass('disabled');
-    //    }
-    //
-    //    var next = function() {
-    //        $previous.removeClass('disabled');
-    //        beginRow += n;
-    //        if(beginRow + n < numRows) {
-    //            endRow = beginRow + n - 1;
-    //            $rows.css('display','none').slice(beginRow, endRow + 1).show();
-    //        }
-    //        else {
-    //            endRow = numRows - 1;
-    //            $rows.css('display','none').slice(beginRow).show();
-    //            $next.addClass('disabled');
-    //        }
-    //    };
-    //
-    //    var previous = function() {
-    //        $next.removeClass('disabled');
-    //        beginRow -= n;
-    //        if(beginRow > 0) {
-    //            endRow = beginRow + n - 1;
-    //            $rows.css('display','none').slice(beginRow, endRow + 1).show();
-    //        }
-    //        else {
-    //            endRow = beginRow + n - 1;
-    //            var $g = $rows.css('display','none').slice(beginRow, endRow + 1);
-    //            console.log($rows);
-    //            $g.show();
-    //            $previous.addClass('disabled');
-    //        }
-    //    };
-    //
-    //    $next.click(function(){
-    //        if($(this).hasClass('disabled')) {
-    //            return false;
-    //        }
-    //        next();
-    //        return false;
-    //    });
-    //
-    //    $previous.click(function(){
-    //        if($(this).hasClass('disabled')) {
-    //            return false;
-    //        }
-    //        previous();
-    //        return false;
-    //    });
-    //};
 
     var toggleTurn = function (player) {
         if (username == player) {
@@ -314,6 +237,7 @@ $(document).ready(function () {
     };
 
     window.onbeforeunload = function () {
+        webSocket.onclose = function(event) {};
         webSocket.close();
     };
 
@@ -491,7 +415,8 @@ $(document).ready(function () {
                 $li.appendTo($('#gameover-ul'));
             }
 
-            $('#modal-gameover').modal('show');
+            $modalGameover.modal('show');
+            timer.stop();
             return;
         }
         if(message.action === 'WRONG_FIRST_MOVE') {
@@ -728,6 +653,11 @@ $(document).ready(function () {
 
     $sendChangedLettersBtn.click(sendSelectedLetters);
     $cancelChangingLettersBtn.click(cancelSelectingLetters);
+
+    $('#gameover-btn').click(function() {
+        window.location.replace('http://' + window.location.host + '/start');
+        return false;
+    });
 
     $droppable.droppable({
         accept: function (el) {

@@ -3,6 +3,7 @@ package com.erudit.messages;
 import com.erudit.Game;
 import com.erudit.Player;
 import com.erudit.PlayerStatus;
+import com.erudit.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +13,24 @@ import java.util.List;
  */
 public class PlayerJoinedMessage extends Message {
 
+    private User player;
     private List<Game.Opponent> opponents = new ArrayList<>();
 
-    public PlayerJoinedMessage(List<Game.Opponent> opponents) {
+    public PlayerJoinedMessage(User player, List<Game.Opponent> opponents) {
         super("PLAYER_JOINED");
+        this.player = player;
         this.opponents = opponents;
     }
 
     public List<Game.Opponent> getOpponents() {
         return opponents;
+    }
+
+    public User getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(User player) {
+        this.player = player;
     }
 }

@@ -4,12 +4,7 @@
 
 $(document).ready(function () {
 
-    var player = {
-        username: $('#username').text(),
-        raiting: $('#raiting').text(),
-        email: $('#email').text(),
-        guest: $('#is-guest').text()
-    };
+    var player = { };
 
     var playerOpponents = [];
 
@@ -52,7 +47,32 @@ $(document).ready(function () {
         }
     };
 
-    var joinPlayer = function (opponents) {
+    var gameCreated = function(user) {
+        $modalWaiting.modal('hide');
+        $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
+
+        player.email = user.email;
+        player.guest = user.guest;
+        player.raiting = user.raiting;
+        player.username = user.username;
+
+        $('#player-name-modal').text(player.username);
+        $('#player-raiting').text(player.raiting);
+        $('#player-modal').fadeIn('slow');
+    };
+
+    var joinPlayer = function (user, opponents) {
+        $modalWaiting.modal('hide');
+        $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
+
+        player.email = user.email;
+        player.guest = user.guest;
+        player.raiting = user.raiting;
+        player.username = user.username;
+
+        $('#player-name-modal').text(player.username);
+        $('#player-raiting').text(player.raiting);
+        $('#player-modal').fadeIn('slow');
 
         for (var i = 0; i < opponents.length; i++) {
             playerOpponents[i] = opponents[i];
@@ -125,10 +145,12 @@ $(document).ready(function () {
         webSocket.onmessage = function (event) {
 
             var message = JSON.parse(event.data);
+            if (message.action == 'PLAYER_CREATED') {
+                gameCreated(message.player);
+                return;
+            }
             if (message.action == 'PLAYER_JOINED') {
-                $modalWaiting.modal('hide');
-                $modalPlayers.modal({keyboard: false, backdrop: 'static', show: true});
-                joinPlayer(message.opponents);
+                joinPlayer(message.player, message.opponents);
                 return;
             }
             if (message.action == 'OPPONENT_JOINED') {

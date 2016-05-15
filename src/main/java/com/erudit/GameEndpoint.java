@@ -57,7 +57,16 @@ public class GameEndpoint {
                 }
             }
             else {
-                game.setActiveAndCheck(session, httpSession, player);
+                if(player.getPlayerStatus() != PlayerStatus.REDIRECTING) {
+                    try {
+                        session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
+                                "Произошла ошибка"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                    game.setActiveAndCheck(session, httpSession, player);
             }
         }
     }

@@ -15,7 +15,7 @@
 </head>
 <body id="game-body">
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1">
@@ -59,7 +59,7 @@
 					</div>
                 </div>
             </div>
-            <div id="words-panel" class="panel panel-default">
+            <div id="words-panel">
                 <div>
                     <ul id="words" class="list-group">
                     </ul>
@@ -501,7 +501,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div id="modal-gameover-header" class="modal-header">
-                    <h3><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Игра окончена</h3>
+                    <h3><span class="glyphicon glyphicon-flag" aria-hidden="true"></span><span> Игра окончена</span></h3>
                 </div>
                 <div class="modal-body" id="modal-gameover-body">
                     <div id="gameover-info"></div>
@@ -512,7 +512,7 @@
                     </div>
                 </div>
                 <div id="modal-gameover-footer" class="modal-footer">
-                    <button id="gameover-btn" class="btn btn-primary">Закрыть</button>
+                    <button id="gameover-btn" class="btn btn-primary">Вернуться к списку игр</button>
                 </div>
             </div>
         </div>

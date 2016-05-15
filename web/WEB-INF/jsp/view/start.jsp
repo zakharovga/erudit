@@ -14,7 +14,7 @@
 
 <body>
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
+    <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1">
@@ -138,11 +138,11 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>${user.raiting}
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="player-raiting"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
-                                        <span id="player-name-modal" class="player-name">${user.username}</span>
+                                        <span id="player-name-modal" class="player-name"></span>
                                     </div>
                                     <div class="col-lg-2">
                                         <div>
@@ -238,11 +238,5 @@
     </div>
 </div>
 
-<div id="player-info">
-    <span id="username">${user.username}</span>
-    <span id="raiting">${user.raiting}</span>
-    <span id="email">${user.email}</span>
-    <span id="is-guest">${user.guest}</span>
-</div>
 </body>
 </html>
