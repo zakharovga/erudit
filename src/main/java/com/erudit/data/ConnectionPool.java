@@ -1,5 +1,8 @@
 package com.erudit.data;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -10,6 +13,8 @@ import java.sql.SQLException;
  * Created by zakharov_ga on 08.02.2016.
  */
 public class ConnectionPool {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static ConnectionPool pool = null;
     private static DataSource dataSource = null;
@@ -26,7 +31,7 @@ public class ConnectionPool {
             InitialContext ic = new InitialContext();
             dataSource = (DataSource) ic.lookup("java:comp/env/jdbc/erudit");
         } catch (NamingException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 

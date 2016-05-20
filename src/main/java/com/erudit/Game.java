@@ -2,6 +2,8 @@ package com.erudit;
 
 import com.erudit.exceptions.GameException;
 import com.erudit.messages.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by zakhar on 06.04.2016.
  */
 public class Game {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final AtomicLong gameIdSequence = new AtomicLong(1L);
 
@@ -47,7 +51,7 @@ public class Game {
                 try {
                     session.close(closeReason);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
                 }
             }
         }
@@ -86,7 +90,7 @@ public class Game {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                             "Эта игра больше не существует"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
                 }
             }
             if (getGameStatus() != GameStatus.PENDING) {
@@ -94,21 +98,21 @@ public class Game {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                             "Эта игра уже началась"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
                 }
             } else if (size() > 3) {
                 try {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                             "В этой игре уже максимум игроков"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
                 }
             } else if (getSession(username) != null) {
                 try {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                             "Вы уже присоединились к этой игре"));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
                 }
             } else {
                 Game oldGame = GameEndpoint.getGame(username);
@@ -294,7 +298,7 @@ public class Game {
                 session.getBasicRemote().sendObject(message);
         }
         catch(IOException | EncodeException e) {
-            handleException(e);
+            LOGGER.warn("Ошибка при отправке сообщения");
         }
     }
 
@@ -312,10 +316,6 @@ public class Game {
                 sendJsonMessage(session, message);
             }
         }
-    }
-
-    private void handleException(Throwable t) {
-        t.printStackTrace();
     }
 
     public long getGameId() {

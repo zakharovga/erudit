@@ -1,6 +1,8 @@
 package com.erudit;
 
 import com.erudit.messages.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.*;
@@ -8,6 +10,7 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
                 decoders = MessageDecoder.class,
                 configurator = StartEndpoint.GetHttpSessionConfigurator.class)
 public class StartEndpoint {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     // игры, ожидающие начала
     public static final Map<Long, Game> pendingGames = new ConcurrentHashMap<>();
@@ -66,7 +71,7 @@ public class StartEndpoint {
                 session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                         "Эта игра больше не существует"));
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
             }
         } else {
             game.joinPlayer(session, httpSession, user);
@@ -113,6 +118,22 @@ public class StartEndpoint {
 //            System.out.println("ERROR");
 //        }
 //    }
+
+    @OnError
+    public void onError(Session session, Throwable e) {
+        LOGGER.warn("Произошла ошибка WebSocket-сессии", e);
+        try {
+            if(session.isOpen()) {
+                session.close(new CloseReason(
+                        CloseReason.CloseCodes.UNEXPECTED_CONDITION, e.toString()
+                ));
+            }
+        }
+        catch(IOException ignore) { }
+        finally {
+            LOGGER.exit();
+        }
+    }
 
     private void closeSession(Session session) {
 

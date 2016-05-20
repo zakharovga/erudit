@@ -1,5 +1,8 @@
 package com.erudit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
@@ -18,17 +21,11 @@ import java.util.List;
 @WebListener
 public class SessionListener implements HttpSessionListener {
 
-    private SimpleDateFormat formatter =
-            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
-
-    private String date() {
-        return this.formatter.format(new Date());
-    }
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
     public void sessionCreated(HttpSessionEvent event) {
-        System.out.println(this.date() + ": Session " + event.getSession().getId() +
-                " created.");
+        LOGGER.debug("Session " + event.getSession().getId() + " created.");
     }
 
     @Override
@@ -41,9 +38,8 @@ public class SessionListener implements HttpSessionListener {
             try {
                 wsSession.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                         "Соединение разорвано, т.к. Вы вышли из своего профиля"));
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            catch (IOException ignore) { }
         }
     }
 }

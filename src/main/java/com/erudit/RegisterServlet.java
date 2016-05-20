@@ -1,6 +1,8 @@
 package com.erudit;
 
 import com.erudit.data.UserDB;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +25,8 @@ import java.util.List;
         loadOnStartup = 1
 )
 public class RegisterServlet extends HttpServlet {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -84,7 +88,7 @@ public class RegisterServlet extends HttpServlet {
                         response.getWriter().write(MessageEncoder.MAPPER.writeValueAsString(message));
                     }
                 } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Ошибка при хэшировании пароля.");
                 }
             }
         }

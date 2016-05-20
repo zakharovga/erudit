@@ -644,6 +644,7 @@ $(document).ready(function () {
         $letterLine.draggable('enable');
 
         $sendChangedLettersBtn.addClass('disabled');
+        $('#letter-line').tooltip('destroy');
         $changeLettersDiv.hide('slow');
         $changeLettersBtn.removeClass('disabled');
     };
