@@ -14,14 +14,16 @@ public class User implements Serializable {
     private String username;
     private int raiting;
     private boolean guest;
+    private int games;
 
     public User() { }
 
-    public User(String email, String username, int raiting, boolean guest) {
+    public User(String email, String username, int raiting, boolean guest, int games) {
         this.email = email;
         this.username = username;
         this.raiting = raiting;
         this.guest = guest;
+        this.games = games;
     }
 
     public String getEmail() {
@@ -62,6 +64,30 @@ public class User implements Serializable {
 
     public void setGuest(boolean guest) {
         this.guest = guest;
+    }
+
+    public int getGames() {
+        return games;
+    }
+
+    public void setGames(int games) {
+        this.games = games;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return username.equals(user.username);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return username.hashCode();
     }
 
     @Override

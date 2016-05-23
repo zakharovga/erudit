@@ -6,7 +6,7 @@
                     pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
         <RollingFile name="EruditFileAppender" fileName="../logs/erudit.log"
-                     filePattern="../logs/support-%d{MM-dd-yyyy}-%i.log">
+                     filePattern="../logs/erudit-%d{MM-dd-yyyy}-%i.log">
             <PatternLayout>
                 <pattern>%d{HH:mm:ss.SSS} [%t] %X{id} %X{username} %-5level %c{36} %l: %msg%n</pattern>
             </PatternLayout>
@@ -20,12 +20,11 @@
         <root level="warn">
             <appender-ref ref="Console" />
         </root>
-        <logger name="com.erudit" level="info">
-            <appender-ref ref="WroxFileAppender" />
+        <logger name="com.erudit" level="debug">
+            <appender-ref ref="EruditFileAppender" />
         </logger>
-        <logger name="org.apache" level="info">
+        <logger name="org.apache" level="debug">
             <appender-ref ref="EruditFileAppender" />
         </logger>
     </loggers>
 </configuration>
-

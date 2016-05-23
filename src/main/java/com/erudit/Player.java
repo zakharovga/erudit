@@ -15,6 +15,7 @@ public class Player {
     private List<Letter> givenLetters;
     private int totalPoints;
     private int lastPoints;
+    private double ratingPoints;
     private PlayerStatus playerStatus;
 
     public Player(User user) {
@@ -85,10 +86,46 @@ public class Player {
         return totalPoints;
     }
 
+    public double getRatingPoints() {
+        return ratingPoints;
+    }
+
+    public void setRatingPoints(double ratingPoints) {
+        this.ratingPoints = ratingPoints;
+    }
+
+    public void addRatingPoints(double points) {
+        ratingPoints += points;
+    }
+
+    public int getGames() {
+        return user.getGames();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+
+        return user.equals(player.user);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return user.hashCode();
+    }
+
     @Override
     public String toString() {
         return "Player{" +
                 "user=" + user +
                 '}';
+    }
+
+    public int getRating() {
+        return user.getRaiting();
     }
 }

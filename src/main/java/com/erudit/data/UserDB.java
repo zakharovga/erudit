@@ -63,6 +63,7 @@ public class UserDB {
                 user.setEmail(email);
                 user.setUsername(rs.getString("username"));
                 user.setRaiting(rs.getInt("raiting"));
+                user.setGames(rs.getInt("games"));
             }
             return user;
         } catch (SQLException e) {

@@ -30,6 +30,7 @@ public class Game {
     private EruditGame eruditGame;
     private final Map<String, Player> httpSessions = new ConcurrentHashMap<>();
     private final Timer timer = new Timer();
+    private final RatingCalculator ratingCalculator = RatingCalculator.getInstance();
 
     private final Object lock = new Object();
 
@@ -268,6 +269,19 @@ public class Game {
         Message message = new GameOverMessage(gameResult);
 
         sendJsonMessage(message);
+    }
+
+    private void computeRatingPoints() {
+        List<Player> players = getPlayers();
+        int n = players.size();
+        for(int i = 0; i < n; i++) {
+            for(int j = i; j < n; j++) {
+                if(players.get(i).getTotalPoints() > players.get(j).getTotalPoints())
+                    players.get(i).addRatingPoints(1);
+                else if(players.get(i).getTotalPoints() == players.get(j).getTotalPoints())
+                    players.get(i).addRatingPoints(0.5);
+            }
+        }
     }
 
     private List<PlayerResult> getGameResult() {

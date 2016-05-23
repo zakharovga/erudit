@@ -64,7 +64,7 @@ public class RegisterServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(MessageEncoder.MAPPER.writeValueAsString(message));
             } else {
-                User user = new User(email, username, User.DEFAULT_RATING, false);
+                User user = new User(email, username, User.DEFAULT_RATING, false, 0);
                 try {
                     String hashedPassword = PasswordUtil.hashPassword(password);
                     UserDB.insert(user, hashedPassword);
