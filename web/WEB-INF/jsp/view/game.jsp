@@ -537,11 +537,6 @@
     </div>
 
     <div id="player-info">
-        <span id="username">${user.username}</span>
-        <span id="rating">${user.rating}</span>
-        <span id="email">${user.email}</span>
-        <span id="is-guest">${user.guest}</span>
-
         <span id="gameId">${gameId}</span>
     </div>
 </div>

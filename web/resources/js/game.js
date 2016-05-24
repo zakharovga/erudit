@@ -4,14 +4,7 @@
 
 $(document).ready(function () {
 
-    var player = {
-        username: $('#username').text(),
-        rating: $('#rating').text(),
-        email: $('#email').text(),
-        guest: $('#is-guest').text()
-    };
-
-    //var player = { };
+    var player = { };
 
     var playerOpponents = [];
 
@@ -30,7 +23,6 @@ $(document).ready(function () {
 
     var myTurn = false;
     var $status = $("#next-turn");
-    var username = player.username;
 
     var gameId = $("#gameId").text();
 
@@ -191,14 +183,14 @@ $(document).ready(function () {
         }
     }());
 
-    var toggleTurn = function (player) {
-        if (username == player) {
+    var toggleTurn = function (user) {
+        if (player.username == user) {
             myTurn = true;
             $status.text('Ваш ход!');
         }
         else {
             myTurn = false;
-            $status.text('Ходит ' + player + '!');
+            $status.text('Ходит ' + user + '!');
         }
     };
 
@@ -260,6 +252,11 @@ $(document).ready(function () {
             timer.start();
 
             $modalWaiting.modal('hide');
+
+            player.username = message.player.username;
+            player.rating = Math.round(message.player.rating);
+            player.guest = message.player.guest;
+
             fillLetterContainer(message.givenLetters);
             fillPlayerInfo(message.opponents);
             toggleTurn(message.nextMove);
@@ -284,7 +281,7 @@ $(document).ready(function () {
             timer.start();
 
             fillLetterContainer(message.letters);
-            fillWordList(message.words, username);
+            fillWordList(message.words, player.username);
 
             if(myTurn) {
                 $changeLettersBtn.removeClass('disabled');
@@ -474,7 +471,6 @@ $(document).ready(function () {
                 }
             }
             if(message.nextMove !== null) {
-                console.log(message);
                 toggleTurn(message.nextMove);
                 if(myTurn) {
                     $changeLettersBtn.removeClass('disabled');
@@ -487,13 +483,15 @@ $(document).ready(function () {
     };
 
     var fillPlayerInfo = function (opponents) {
-        $('#player-name').text(username);
+        $('#player-name').text(player.username);
         $('#player-rating').text(player.rating);
         $('#player').show('slow');
         for (var i = 0; i < opponents.length; i++) {
-            playerOpponents[i] = opponents[i];
-            $('#opponent' + i + '-name').text(opponents[i].username);
-            $('#opponent' + i + '-rating').text(opponents[i].rating);
+            playerOpponents[i].username = opponents[i].username;
+            playerOpponents[i].rating = Math.round(opponents[i].rating);
+            playerOpponents[i].guest = opponents[i].guest;
+            $('#opponent' + i + '-name').text(playerOpponents[i].username);
+            $('#opponent' + i + '-rating').text(playerOpponents[i].rating);
             $('#opponent' + i).show('slow');
         }
     };

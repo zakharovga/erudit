@@ -17,6 +17,8 @@ public class GameStartedMessage extends Message {
 
     private List<Letter> givenLetters;
 
+    private User player;
+
     private List<User> opponents = new ArrayList<>();
 
     public String getNextMove() {
@@ -39,7 +41,16 @@ public class GameStartedMessage extends Message {
         super("GAME_STARTED");
         this.nextMove = nextMove;
         this.givenLetters = player.getGivenLetters();
+        this.player = player.getUser();
         this.opponents = opponents;
+    }
+
+    public User getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(User player) {
+        this.player = player;
     }
 
     public List<User> getOpponents() {
