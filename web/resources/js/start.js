@@ -53,11 +53,11 @@ $(document).ready(function () {
 
         player.email = user.email;
         player.guest = user.guest;
-        player.raiting = user.raiting;
+        player.rating = Math.round(user.rating);
         player.username = user.username;
 
         $('#player-name-modal').text(player.username);
-        $('#player-raiting').text(player.raiting);
+        $('#player-rating').text(player.rating);
         $('#player-modal').fadeIn('slow');
     };
 
@@ -67,18 +67,18 @@ $(document).ready(function () {
 
         player.email = user.email;
         player.guest = user.guest;
-        player.raiting = user.raiting;
+        player.rating = Math.round(user.rating);
         player.username = user.username;
 
         $('#player-name-modal').text(player.username);
-        $('#player-raiting').text(player.raiting);
+        $('#player-rating').text(player.rating);
         $('#player-modal').fadeIn('slow');
 
         for (var i = 0; i < opponents.length; i++) {
             playerOpponents[i] = opponents[i];
 
             $('#opponent' + i + '-name-modal').text(opponents[i].user.username);
-            $('#opponent' + i + '-raiting').text(opponents[i].user.raiting);
+            $('#opponent' + i + '-rating').text(Math.round(opponents[i].user.rating));
             var $opponent = $('#opponent' + i + '-modal');
             setOpponentReady(i, opponents[i].ready);
             $opponent.fadeIn('slow');
@@ -91,7 +91,7 @@ $(document).ready(function () {
         playerOpponents.push(opponent);
         var lastIndex = playerOpponents.length - 1;
 
-        $('#opponent' + lastIndex + '-raiting').text(player.raiting);
+        $('#opponent' + lastIndex + '-rating').text(Math.round(player.rating));
         $('#opponent' + lastIndex + '-name-modal').text(player.username);
         $('#opponent' + lastIndex + '-modal').fadeIn('slow');
     };

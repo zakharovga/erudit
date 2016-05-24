@@ -2,23 +2,16 @@
  * Created by zakhar on 19.04.2016.
  */
 
-//$(window).bind("pageshow", function(event) {
-//    if (event.originalEvent.persisted) {
-//        alert('asfgasdfgassfg!!!!!!!!!');
-//    }
-//});
-//
-//$(window).unload(function() {});
-
-
 $(document).ready(function () {
 
     var player = {
         username: $('#username').text(),
-        raiting: $('#raiting').text(),
+        rating: $('#rating').text(),
         email: $('#email').text(),
         guest: $('#is-guest').text()
     };
+
+    //var player = { };
 
     var playerOpponents = [];
 
@@ -495,12 +488,12 @@ $(document).ready(function () {
 
     var fillPlayerInfo = function (opponents) {
         $('#player-name').text(username);
-        $('#player-raiting').text(player.raiting);
+        $('#player-rating').text(player.rating);
         $('#player').show('slow');
         for (var i = 0; i < opponents.length; i++) {
             playerOpponents[i] = opponents[i];
             $('#opponent' + i + '-name').text(opponents[i].username);
-            $('#opponent' + i + '-raiting').text(opponents[i].raiting);
+            $('#opponent' + i + '-rating').text(opponents[i].rating);
             $('#opponent' + i).show('slow');
         }
     };

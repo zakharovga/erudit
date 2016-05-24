@@ -7,21 +7,21 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
 
-    public static int DEFAULT_RATING = 1600;
+    public static double DEFAULT_RATING = 750;
 
     private long id;
     private String email;
     private String username;
-    private int raiting;
+    private double rating;
     private boolean guest;
     private int games;
 
     public User() { }
 
-    public User(String email, String username, int raiting, boolean guest, int games) {
+    public User(String email, String username, double rating, boolean guest, int games) {
         this.email = email;
         this.username = username;
-        this.raiting = raiting;
+        this.rating = rating;
         this.guest = guest;
         this.games = games;
     }
@@ -42,12 +42,12 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public int getRaiting() {
-        return raiting;
+    public double getRating() {
+        return rating;
     }
 
-    public void setRaiting(int raiting) {
-        this.raiting = raiting;
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
     public String getUsername() {
@@ -93,7 +93,10 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-                "username='" + username + '\'' +
+                "guest=" + guest +
+                ", rating=" + rating +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }

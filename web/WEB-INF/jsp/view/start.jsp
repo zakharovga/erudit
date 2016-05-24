@@ -138,7 +138,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="player-raiting"></span>
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="player-rating"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -160,7 +160,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent0-raiting"></span>
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent0-rating"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -182,7 +182,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent1-raiting"></span>
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent1-rating"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">
@@ -204,7 +204,7 @@
                                             <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         </div>
                                         <div class="rating">
-                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent2-raiting"></span>
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span><span id="opponent2-rating"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-10">

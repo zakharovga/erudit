@@ -15,7 +15,6 @@ public class Player {
     private List<Letter> givenLetters;
     private int totalPoints;
     private int lastPoints;
-    private double ratingPoints;
     private PlayerStatus playerStatus;
 
     public Player(User user) {
@@ -86,20 +85,16 @@ public class Player {
         return totalPoints;
     }
 
-    public double getRatingPoints() {
-        return ratingPoints;
-    }
-
-    public void setRatingPoints(double ratingPoints) {
-        this.ratingPoints = ratingPoints;
-    }
-
-    public void addRatingPoints(double points) {
-        ratingPoints += points;
-    }
-
     public int getGames() {
         return user.getGames();
+    }
+
+    public boolean isGuest() {
+        return user.isGuest();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
     }
 
     @Override
@@ -125,7 +120,11 @@ public class Player {
                 '}';
     }
 
-    public int getRating() {
-        return user.getRaiting();
+    public double getRating() {
+        return user.getRating();
+    }
+
+    public void updateInfo(double newRating) {
+        user.setRating(newRating);
     }
 }

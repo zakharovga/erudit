@@ -66,6 +66,9 @@ public class RegisterServlet extends HttpServlet {
             } else {
                 User user = new User(email, username, User.DEFAULT_RATING, false, 0);
                 try {
+
+                    System.out.println("1");
+
                     String hashedPassword = PasswordUtil.hashPassword(password);
                     UserDB.insert(user, hashedPassword);
                     HttpSession httpSession = request.getSession();

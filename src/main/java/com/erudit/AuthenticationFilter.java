@@ -24,7 +24,7 @@ public class AuthenticationFilter implements Filter {
             String username = "Гость" + getGuestId();
 
             user.setUsername(username);
-            user.setRaiting(1200);
+            user.setRating(User.DEFAULT_RATING);
             user.setGuest(true);
             user.setGames(0);
 

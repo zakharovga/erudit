@@ -1,5 +1,6 @@
 package com.erudit;
 
+import com.erudit.data.UserDB;
 import com.erudit.exceptions.GameException;
 import com.erudit.messages.*;
 import org.apache.logging.log4j.LogManager;
@@ -180,6 +181,9 @@ public class Game {
                 else if(getGameStatus() == GameStatus.ACTIVE) {
                     timer.stop();
                     GameEndpoint.removeActiveGame(gameId);
+
+                    Map<Player, Double> newRatings = ratingCalculator.computeNewRatings(getPlayers());
+                    updatePlayersInfo(newRatings);
                 }
                 this.setGameStatus(GameStatus.CLOSED);
             } else {
@@ -269,17 +273,22 @@ public class Game {
         Message message = new GameOverMessage(gameResult);
 
         sendJsonMessage(message);
+
+
+
+        Map<Player, Double> newRatings = ratingCalculator.computeNewRatings(getPlayers());
+        updatePlayersInfo(newRatings);
     }
 
-    private void computeRatingPoints() {
-        List<Player> players = getPlayers();
-        int n = players.size();
-        for(int i = 0; i < n; i++) {
-            for(int j = i; j < n; j++) {
-                if(players.get(i).getTotalPoints() > players.get(j).getTotalPoints())
-                    players.get(i).addRatingPoints(1);
-                else if(players.get(i).getTotalPoints() == players.get(j).getTotalPoints())
-                    players.get(i).addRatingPoints(0.5);
+    private void updatePlayersInfo(Map<Player, Double> newRatings) {
+
+        for(Map.Entry<Player, Double> entry : newRatings.entrySet()) {
+            Player player = entry.getKey();
+            double newRating = entry.getValue();
+            int newGames = player.getGames() + 1;
+            if(!player.isGuest()) {
+                player.updateInfo(newRating);
+                UserDB.updateInfo(player.getEmail(), newRating, newGames);
             }
         }
     }

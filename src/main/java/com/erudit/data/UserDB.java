@@ -17,13 +17,13 @@ public class UserDB {
         PreparedStatement ps = null;
 
         String query
-                = "INSERT INTO users (email, username, raiting, password) "
+                = "INSERT INTO users (email, username, rating, password) "
                 + "VALUES (?, ?, ?, ?)";
         try {
             ps = connection.prepareStatement(query);
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getUsername());
-            ps.setInt(3, user.getRaiting());
+            ps.setDouble(3, user.getRating());
             ps.setString(4, password);
 
             ps.executeUpdate();
@@ -62,7 +62,7 @@ public class UserDB {
                 user.setId(rs.getInt("id"));
                 user.setEmail(email);
                 user.setUsername(rs.getString("username"));
-                user.setRaiting(rs.getInt("raiting"));
+                user.setRating(rs.getDouble("rating"));
                 user.setGames(rs.getInt("games"));
             }
             return user;
@@ -71,6 +71,29 @@ public class UserDB {
             return null;
         } finally {
             DBUtil.closeResultSet(rs);
+            DBUtil.closePreparedStatement(ps);
+            pool.freeConnection(connection);
+        }
+    }
+
+    public static boolean updateInfo(String email, double newRating, int newGames) {
+        ConnectionPool pool = ConnectionPool.getInstance();
+        Connection connection = pool.getConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String query = "UPDATE users SET rating = ?, games = ? WHERE email = ?";
+
+        try {
+            ps = connection.prepareStatement(query);
+            ps.setDouble(1, newRating);
+            ps.setInt(2, newGames);
+            ps.setString(3, email);
+            return ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
             DBUtil.closePreparedStatement(ps);
             pool.freeConnection(connection);
         }
@@ -94,7 +117,7 @@ public class UserDB {
                 user.setId(rs.getInt("id"));
                 user.setEmail(email);
                 user.setUsername(rs.getString("username"));
-                user.setRaiting(rs.getInt("raiting"));
+                user.setRating(rs.getDouble("rating"));
             }
             return user;
         } catch (SQLException e) {
