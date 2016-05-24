@@ -487,9 +487,8 @@ $(document).ready(function () {
         $('#player-rating').text(player.rating);
         $('#player').show('slow');
         for (var i = 0; i < opponents.length; i++) {
-            playerOpponents[i].username = opponents[i].username;
+            playerOpponents[i] = opponents[i];
             playerOpponents[i].rating = Math.round(opponents[i].rating);
-            playerOpponents[i].guest = opponents[i].guest;
             $('#opponent' + i + '-name').text(playerOpponents[i].username);
             $('#opponent' + i + '-rating').text(playerOpponents[i].rating);
             $('#opponent' + i).show('slow');
