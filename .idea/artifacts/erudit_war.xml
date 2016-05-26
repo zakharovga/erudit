@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="erudit:war">
+  <artifact type="war" build-on-make="true" name="erudit:war">
     <output-path>$PROJECT_DIR$/target</output-path>
     <root id="archive" name="erudit-1.0-SNAPSHOT.war">
       <element id="artifact" artifact-name="erudit:war exploded" />
