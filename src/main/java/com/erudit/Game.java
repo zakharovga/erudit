@@ -151,6 +151,9 @@ public class Game {
 
     public void disconnectPlayer(Session session) {
         synchronized (lock) {
+
+            LOGGER.info("INSIDE DISCONNECTING PLAYER");
+
             Player player = getPlayer(session);
             String username = player.getUsername();
 

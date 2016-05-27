@@ -71,7 +71,7 @@ public class StartEndpoint {
                 session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                         "Эта игра больше не существует"));
             } catch (IOException e) {
-                LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
+                LOGGER.error(e);
             }
         } else {
             game.joinPlayer(session, httpSession, user);
@@ -121,7 +121,7 @@ public class StartEndpoint {
 
     @OnError
     public void onError(Session session, Throwable e) {
-        LOGGER.warn("Произошла ошибка WebSocket-сессии", e);
+        LOGGER.error(e);
         try {
             if(session.isOpen()) {
                 session.close(new CloseReason(

@@ -5,7 +5,7 @@
             <PatternLayout
                     pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <RollingFile name="EruditFileAppender" fileName="../logs/erudit.log"
+        <RollingFile name="EruditFileAppender" fileName="${sys:catalina.home}/logs/erudit.log"
                      filePattern="../logs/erudit-%d{MM-dd-yyyy}-%i.log">
             <PatternLayout>
                 <pattern>%d{HH:mm:ss.SSS} [%t] %X{id} %X{username} %-5level %c{36} %l: %msg%n</pattern>

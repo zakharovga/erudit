@@ -1,1 +1,732 @@
-$(document).ready(function(){var q,a={},b=[],c=$("#modal-error"),d=$("#modal-error-body"),e=$("#modal-waiting"),f=$("#modal-info"),g=$("#modal-gameover"),h=$(".letter-container>div, .game-cell"),i=$("#make-move-btn"),j=$("#change-letters-btn"),k=$("#change-letters-div"),l=$("#send-changed-letters-btn"),m=$("#cancel-changing-letters-btn"),n=!1,o=$("#next-turn"),p=$("#gameId").text(),r=[],s=[],t=[],u=function(){var b,a=$("#timer"),c="01:00",d=function(){var c=a.text().split(":"),d=c[0],e=c[1];"00"===e?(e="59",d=""+(parseInt(d)-1),1===d.length&&(d="0"+d)):(e=""+(parseInt(e)-1),1===e.length&&(e="0"+e)),a.text(d+":"+e),"00:00"===a.text()&&(a.css("color","#ccc"),clearInterval(b))};return{start:function(){a.css("color","#fff"),a.text(c),b=setInterval(d,1e3)},stop:function(){clearInterval(b)}}}();if(!("WebSocket"in window))return d.text("\u0412\u0435\u0431\u0441\u043e\u043a\u0435\u0442\u044b \u043d\u0435 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044e\u0442\u0441\u044f \u044d\u0442\u0438\u043c \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u043e\u043c. \u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 Internet Explorer 10 \u0438\u043b\u0438 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 \u0432\u0435\u0440\u0441\u0438\u0438 Mozilla Firefox \u0438\u043b\u0438 Google Chrome."),void c.modal("show");e.modal("show");var v;try{v=new WebSocket("ws://"+window.location.host+"/game/"+p)}catch(w){return e.modal("hide"),d.text(w),void c.modal("show")}$("#pager").find("li a").click(function(a){a.preventDefault()});var x=function(){var e,f,g,a=15,b=$("#pager"),c=b.children().eq(0),d=b.children().eq(1),h=function(){c.removeClass("disabled"),f+=a;var b=f+a-1;f+a<g?e.css("display","none").slice(f,b+1).show():(e.css("display","none").slice(f).show(),d.addClass("disabled"))},i=function(){d.removeClass("disabled"),f-=a;var b=f+a-1;f>0?e.css("display","none").slice(f,b+1).show():(e.css("display","none").slice(f,b+1).show(),c.addClass("disabled"))};return{page:function(b){e=b.children(),g=e.size();var j=Math.ceil(g/a),k=0===g?0:g%a==0?a:g%a;f=(j-1)*a,e.hide();for(var l=0;l<k;l++){var m=e.eq((j-1)*a+l);m.hasClass("last-word")?m.show("slow"):m.show()}d.addClass("disabled"),g>a&&c.removeClass("disabled"),d.unbind("click").click(function(){return $(this).hasClass("disabled")?!1:(h(),!1)}),c.unbind("click").click(function(){return $(this).hasClass("disabled")?!1:(i(),!1)})}}}(),y=function(b){a.username==b?(n=!0,o.text("\u0412\u0430\u0448 \u0445\u043e\u0434!")):(n=!1,o.text("\u0425\u043e\u0434\u0438\u0442 "+b+"!"))},z=function(a,b){setTimeout(function(){var c=a.offset();a.css({top:0,left:0}).appendTo(b);var d=a.offset(),e=a.clone().appendTo("body");e.css({position:"absolute",left:c.left,top:c.top,"z-index":1e3}),a.hide(),e.animate({top:d.top,left:d.left},"fast",function(){a.show(),e.remove()})},0)};v.onopen=function(){},window.onbeforeunload=function(){v.onclose=function(){},v.close()},v.onclose=function(a){a.wasClean?(e.modal("hide"),d.text(a.reason),c.modal("show")):(e.modal("hide"),d.text("\u0421\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435 \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u043e\u043c \u0440\u0430\u0437\u043e\u0440\u0432\u0430\u043d\u043e. \u041a\u043e\u0434 "+a.code+": "+a.reason),c.modal("show"))},v.onerror=function(a){d.text(a.data),c.modal("show")},v.onmessage=function(c){var d=JSON.parse(c.data);if("GAME_STARTED"==d.action)return u.start(),e.modal("hide"),a.username=d.player.username,a.rating=Math.round(d.player.rating),a.guest=d.player.guest,D(d.givenLetters),A(d.opponents),y(d.nextMove),void(n&&(h.droppable("enable"),j.removeClass("disabled")));if("PLAYER_MADE_MOVE"==d.action){var l=$(".move-made");return l.draggable("destroy"),l.removeClass("move-made letter-line"),r=[],s=[],q="",y(d.nextMove),u.stop(),u.start(),D(d.letters),B(d.words,a.username),void(n&&(j.removeClass("disabled"),h.droppable("enable")))}if("OPPONENT_MADE_MOVE"==d.action){for(var m=d.moves.length-1;m>=0;m--){var o="r"+d.moves[m].row+"c"+d.moves[m].column,p=d.moves[m].letter.letter,v=d.moves[m].letter.value,w=$("<div/>",{"class":"letter-div",css:{display:"none"}});w.appendTo($("#"+o)),$("<span/>",{"class":"letter"}).text(p).appendTo(w),$("<span/>",{"class":"value"}).text(v).appendTo(w),w.fadeIn("slow")}return B(d.words,d.previousMove),y(d.nextMove),u.stop(),u.start(),void(n&&(j.removeClass("disabled"),h.droppable("enable")))}if("PLAYER_CHANGED_LETTERS"==d.action)return $(".letter-line").draggable("enable"),y(d.nextMove),$(".last-word").removeClass("last-word"),u.stop(),u.start(),C(d.changedLetters),void(n&&(j.removeClass("disabled"),h.droppable("enable")));if("OPPONENT_CHANGED_LETTERS"==d.action)return y(d.nextMove),$(".last-word").removeClass("last-word"),u.stop(),u.start(),void(n&&(j.removeClass("disabled"),h.droppable("enable")));if("TIME_OVER"==d.action){var x=n;y(d.nextMove),u.stop(),u.start(),f.modal("hide");var E=$(".letter-line");if(E.draggable("enable"),i.addClass("disabled"),x)if(h.droppable("disable"),"CHANGE_LETTERS"===q){$("#letter-line").tooltip("destroy");for(var m=0;m<t.length;m++)t[m].removeClass("selected");k.hide("slow"),E.unbind("click")}else if("MAKE_WORDS"===q){r=[];for(var F=0;F<s.length;F++)z(s[F].$letter,s[F].$initialParent);i.addClass("disabled"),s=[],$(".move-made").removeClass("move-made")}return void(n&&(j.removeClass("disabled"),h.droppable("enable")))}if("GAME_OVER"===d.action){var G=d.gameResult,H=$("<h4/>");G[0].points===G[1].points?H.text("\u041d\u0438\u0447\u044c\u044f").appendTo($("#gameover-info")):H.text("\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c: "+G[0].player).appendTo($("#gameover-info"));for(var m=0;m<G.length;m++){var I=$("<li/>",{"class":"list-group-item"}),J=$("<span/>",{"class":"badge"}).text(G[m].points),K=$("<span/>").text(G[m].player);J.appendTo(I),K.appendTo(I),I.appendTo($("#gameover-ul"))}return g.modal("show"),void u.stop()}if("WRONG_FIRST_MOVE"===d.action)return h.droppable("enable"),i.removeClass("disabled"),$("#modal-info-header-span").text(" \u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u043f\u0435\u0440\u0432\u044b\u0439 \u0445\u043e\u0434!"),$("#modal-info-body-h5").text(d.message),void f.modal("show");if("INCORRECT_MOVES"===d.action){h.droppable("enable"),i.removeClass("disabled"),$("#modal-info-header-span").text(" \u0411\u0443\u043a\u0432\u044b \u0432\u044b\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u044b \u043d\u0435\u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u043e!");for(var L=d.message+" ",m=0;m<d.incorrectMoves.length;m++)L+=d.incorrectMoves[m].letter.letter+", ";return L=L.slice(0,-2),$("#modal-info-body-h5").text(L),void f.modal("show")}if("NO_SUCH_WORD"===d.action){h.droppable("enable"),i.removeClass("disabled"),$("#modal-info-header-span").text("\u0421\u043b\u043e\u0432\u043e \u043e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432 \u0441\u043b\u043e\u0432\u0430\u0440\u0435!");var L=d.message+" "+d.word;return $("#modal-info-body-h5").text(L),void f.modal("show")}if("WORD_ALREADY_USED"===d.action||"WORD_USED_TWICE"===d.action){h.droppable("enable"),i.removeClass("disabled"),$("#modal-info-header-span").text("\u041f\u043e\u0432\u0442\u043e\u0440\u043d\u043e\u0435 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u0435 \u0441\u043b\u043e\u0432\u0430");var L=d.message+" "+d.word;return $("#modal-info-body-h5").text(L),void f.modal("show")}if("OPPONENT_QUIT"==d.action){for(var m=0;m<b.length;m++)b[m].username===d.opponent&&$("#opponent"+m).addClass("player-disconnected");null!==d.nextMove&&(y(d.nextMove),n&&(j.removeClass("disabled"),h.droppable("enable")),u.stop(),u.start())}};var A=function(c){$("#player-name").text(a.username),$("#player-rating").text(a.rating),$("#player").show("slow");for(var d=0;d<c.length;d++)b[d]=c[d],b[d].rating=Math.round(c[d].rating),$("#opponent"+d+"-name").text(b[d].username),$("#opponent"+d+"-rating").text(b[d].rating),$("#opponent"+d).show("slow")},B=function(a,b){$(".last-word").removeClass("last-word");var c=$(".player-name");c.each(function(){var c=$(this);if(c.children().eq(0).text()===b){var d=c.next().children().eq(1);d.text(function(){var b=0;for(var c in a)if(a.hasOwnProperty(c)){var e=$("<li/>",{"class":"list-group-item",css:{display:"none"}});e.addClass("last-word");var f=$("<span/>",{"class":"badge"}).text(a[c]),g=$("<span/>").text(c);f.appendTo(e),g.appendTo(e),e.appendTo($("#words")),x.page($("#words")),b+=parseInt(a[c])}return parseInt(d.text())+b})}})},C=function(a){for(var b=0;b<t.length;b++){var c=$("<div/>",{"class":"letter-div letter-line",css:{display:"none"}});t[b].replaceWith(c),$("<span/>",{"class":"letter"}).text(a[b].letter).appendTo(c),$("<span/>",{"class":"value"}).text(a[b].value).appendTo(c),c.fadeIn("slow"),c.draggable({stack:".letter-line",revert:"invalid"})}},D=function(a){var b=0;$("div.letter-container>div:empty").each(function(){var c=$("<div/>",{"class":"letter-div letter-line",css:{display:"none"}});c.appendTo($(this)),$("<span/>",{"class":"letter"}).text(a[b].letter).appendTo(c),$("<span/>",{"class":"value"}).text(a[b].value).appendTo(c),c.fadeIn("slow"),c.draggable({stack:".letter-line",revert:"invalid"}),b++})},E=function(){null!=v&&(i.addClass("disabled"),v.send(JSON.stringify({action:"PLAYER_MADE_MOVE",move:r})),h.droppable("disable"))},F=function(a){a.addClass("selected"),l.removeClass("disabled"),t.push(a)},G=function(){q="CHANGE_LETTERS",t=[],i.addClass("disabled"),j.addClass("disabled");var a=$(".letter-line");a.draggable("disable"),k.show("slow"),a.click(function(){var b=$(this);F(b),b.unbind("click")}),$("#letter-line").tooltip("show")},H=function(a){return parseInt(a.substring(1,a.indexOf("c")))},I=function(a){return parseInt(a.substring(a.indexOf("c")+1))},J=function(){if(null!=v){var a=[];l.addClass("disabled"),$("#letter-line").tooltip("destroy"),k.hide("slow"),h.droppable("disable"),$(".letter-line").unbind("click");for(var b=0;b<t.length;b++){var c=t[b].children(":first"),d=c.next();a.push({letter:c.text(),value:d.text()})}v.send(JSON.stringify({action:"PLAYER_CHANGED_LETTERS",letters:a}))}},K=function(){for(var a=0;a<t.length;a++)t[a].removeClass("selected");t=[];var b=$(".letter-line");b.unbind("click"),b.draggable("enable"),l.addClass("disabled"),$("#letter-line").tooltip("destroy"),k.hide("slow"),j.removeClass("disabled")};i.click(E),j.click(G),l.click(J),m.click(K),$("#gameover-btn").click(function(){return window.location.replace("http://"+window.location.host+"/start"),!1}),h.droppable({accept:function(a){return 0===$(this).children(".letter-div").length&&a.hasClass("letter-div")},hoverClass:"hovered",disabled:!0,drop:function(a,b){var c=$(this),d=b.draggable,e=b.draggable.parent();if(z(d,c),e.hasClass("game-cell")){c.hasClass("game-cell")||d.removeClass("move-made");for(var f=0;f<r.length;f++){var g="r"+r[f].row+"c"+r[f].column;if(g===e.attr("id")){r.splice(f,1);break}}}if(c.hasClass("game-cell")){q="MAKE_WORDS",d.addClass("move-made");var h=c.attr("id"),k=H(h),l=I(h),m=d.children(":first"),n=m.next(),o={row:k,column:l,letter:{letter:m.text(),value:n.text()}};r.push(o)}for(var p=!0,f=0;f<s.length;f++)if(s[f].$letter===d){if(p=!1,s[f].$initialParent===c){s.splice(f,1);break}break}p&&s.push({$letter:d,$initialParent:e}),r.length>0?(i.removeClass("disabled"),j.addClass("disabled")):(i.addClass("disabled"),j.removeClass("disabled"))}})});
+/**
+ * Created by zakhar on 19.04.2016.
+ */
+
+$(document).ready(function () {
+
+    var player = { };
+
+    var playerOpponents = [];
+
+    var $modalError = $("#modal-error");
+    var $modalErrorBody = $("#modal-error-body");
+    var $modalWaiting = $('#modal-waiting');
+    var $modalInfo = $('#modal-info');
+    var $modalGameover = $('#modal-gameover');
+
+    var $droppable = $('.letter-container>div, .game-cell');
+    var $makeMoveBtn = $('#make-move-btn');
+    var $changeLettersBtn = $('#change-letters-btn');
+    var $changeLettersDiv = $('#change-letters-div');
+    var $sendChangedLettersBtn = $('#send-changed-letters-btn');
+    var $cancelChangingLettersBtn = $('#cancel-changing-letters-btn');
+
+    var myTurn = false;
+    var $status = $("#next-turn");
+
+    var gameId = $("#gameId").text();
+
+    var moveType;
+
+    var move = [];
+    var abortMove = [];
+    var changedLetters = [];
+
+    var timer = (function () {
+
+        var $timer = $('#timer');
+        var timer;
+        var timePerMove = '01:00';
+
+        var changeTime = function () {
+            var tempArr = $timer.text().split(':');
+            var min = tempArr[0];
+            var sec = tempArr[1];
+            if (sec === '00') {
+                sec = '59';
+                min = '' + (parseInt(min) - 1);
+                if (min.length === 1) {
+                    min = '0' + min;
+                }
+            }
+            else {
+                sec = '' + (parseInt(sec) - 1);
+                if (sec.length === 1) {
+                    sec = '0' + sec;
+                }
+            }
+            $timer.text(min + ':' + sec);
+            if ($timer.text() === '00:00') {
+                $timer.css('color', '#ccc');
+                clearInterval(timer);
+            }
+        };
+
+        return {
+            start: function () {
+                $timer.css('color', '#fff');
+                $timer.text(timePerMove);
+                timer = setInterval(changeTime, 1000);
+            },
+            stop: function () {
+                clearInterval(timer);
+            }
+        }
+    }());
+
+    if (!("WebSocket" in window)) {
+        $modalErrorBody.text('Вебсокеты не поддерживаются этим браузером. ' +
+            'Попробуйте Internet Explorer 10 ' +
+            'или последние версии Mozilla Firefox или Google Chrome.');
+        $modalError.modal('show');
+        return;
+    }
+
+    $modalWaiting.modal('show');
+
+    var webSocket;
+    try {
+        webSocket = new WebSocket('ws://' + window.location.host + window.location.pathname + '/' + gameId);
+    } catch (error) {
+        $modalWaiting.modal('hide');
+        $modalErrorBody.text(error);
+        $modalError.modal('show');
+        return;
+    }
+
+    $('#pager').find('li a').click(function(e) {
+        e.preventDefault();
+    });
+
+    var wordPager = (function(){
+        var n = 15;
+
+        var $pager = $('#pager');
+        var $previous = $pager.children().eq(0);
+        var $next = $pager.children().eq(1);
+
+        var $rows;
+        var beginRow;
+        var numRows;
+
+        var next = function() {
+            $previous.removeClass('disabled');
+            beginRow = beginRow + n;
+            var endRow = beginRow + n - 1;
+
+            if(beginRow + n < numRows) {
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                $rows.css('display','none').slice(beginRow).show();
+                $next.addClass('disabled');
+            }
+        };
+
+        var previous = function() {
+            $next.removeClass('disabled');
+            beginRow = beginRow - n;
+            var endRow = beginRow + n - 1;
+
+            if(beginRow > 0) {
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+            }
+            else {
+                $rows.css('display','none').slice(beginRow, endRow + 1).show();
+                $previous.addClass('disabled');
+            }
+        };
+
+        return {
+            page: function($list) {
+                $rows = $list.children();
+
+                numRows = $rows.size();
+                var numPages = Math.ceil(numRows/n);
+                var toShow = (numRows === 0) ? 0 : (numRows % n == 0) ? n : (numRows % n);
+                beginRow = (numPages - 1) * n;
+
+                $rows.hide();
+
+                for(var i = 0; i < toShow; i++) {
+                    var $row = $rows.eq((numPages - 1) * n + i);
+                    if(!($row.hasClass('last-word'))) {
+                        $row.show();
+                    }
+                    else {
+                        $row.show('slow');
+                    }
+                }
+
+                $next.addClass('disabled');
+
+                if(numRows > n) {
+                    $previous.removeClass('disabled');
+                }
+
+                $next.unbind('click').click(function(){
+                    if($(this).hasClass('disabled')) {
+                        return false;
+                    }
+                    next();
+                    return false;
+                });
+
+                $previous.unbind('click').click(function(){
+                    if($(this).hasClass('disabled')) {
+                        return false;
+                    }
+                    previous();
+                    return false;
+                });
+            }
+        }
+    }());
+
+    var toggleTurn = function (user) {
+        if (player.username == user) {
+            myTurn = true;
+            $status.text('Ваш ход!');
+        }
+        else {
+            myTurn = false;
+            $status.text('Ходит ' + user + '!');
+        }
+    };
+
+    var moveAnimate = function ($element, $newParent) {
+
+        setTimeout(function () {
+            var oldOffset = $element.offset();
+            $element.css({top: 0, left: 0}).appendTo($newParent);
+            var newOffset = $element.offset();
+
+            var $temp = $element.clone().appendTo('body');
+            $temp.css({
+                'position': 'absolute',
+                'left': oldOffset.left,
+                'top': oldOffset.top,
+                'z-index': 1000
+            });
+            $element.hide();
+            $temp.animate({'top': newOffset.top, 'left': newOffset.left}, 'fast', function () {
+                $element.show();
+                $temp.remove();
+            });
+        }, 0);
+
+    };
+
+    webSocket.onopen = function (event) {
+
+    };
+
+    window.onbeforeunload = function () {
+        webSocket.onclose = function(event) {};
+        webSocket.close();
+    };
+
+    webSocket.onclose = function (event) {
+        if (!event.wasClean) {
+            $modalWaiting.modal('hide');
+            $modalErrorBody.text('Соединение с сервером разорвано. Код ' + event.code + ': ' + event.reason);
+            $modalError.modal('show');
+        }
+        else {
+            $modalWaiting.modal('hide');
+            $modalErrorBody.text(event.reason);
+            $modalError.modal('show');
+        }
+    };
+
+    webSocket.onerror = function (event) {
+        $modalErrorBody.text(event.data);
+        $modalError.modal('show');
+    };
+
+    webSocket.onmessage = function (event) {
+        var message = JSON.parse(event.data);
+
+        if (message.action == 'GAME_STARTED') {
+
+            timer.start();
+
+            $modalWaiting.modal('hide');
+
+            player.username = message.player.username;
+            player.rating = Math.round(message.player.rating);
+            player.guest = message.player.guest;
+
+            fillLetterContainer(message.givenLetters);
+            fillPlayerInfo(message.opponents);
+            toggleTurn(message.nextMove);
+            if (myTurn) {
+                $droppable.droppable('enable');
+                $changeLettersBtn.removeClass('disabled');
+            }
+            return;
+        }
+        if (message.action == 'PLAYER_MADE_MOVE') {
+
+            var $moveMade = $('.move-made');
+            $moveMade.draggable('destroy');
+            $moveMade.removeClass('move-made letter-line');
+            move = [];
+            abortMove = [];
+            moveType = '';
+
+            toggleTurn(message.nextMove);
+
+            timer.stop();
+            timer.start();
+
+            fillLetterContainer(message.letters);
+            fillWordList(message.words, player.username);
+
+            if(myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
+            return;
+        }
+        if (message.action == 'OPPONENT_MADE_MOVE') {
+            for (var i = message.moves.length - 1; i >= 0; i--) {
+                var id = "r" + message.moves[i].row + "c" + message.moves[i].column;
+                var letter = message.moves[i].letter.letter;
+                var value = message.moves[i].letter.value;
+
+                var letterWrapper = $('<div/>', {class: 'letter-div', css: {'display': 'none'}});
+                letterWrapper.appendTo($('#' + id));
+                $('<span/>', {class: 'letter'}).text(letter).appendTo(letterWrapper);
+                $('<span/>', {class: 'value'}).text(value).appendTo(letterWrapper);
+                letterWrapper.fadeIn('slow');
+            }
+            fillWordList(message.words, message.previousMove);
+            toggleTurn(message.nextMove);
+
+            timer.stop();
+            timer.start();
+
+            if (myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
+            return;
+        }
+        if (message.action == 'PLAYER_CHANGED_LETTERS') {
+            $('.letter-line').draggable('enable');
+            toggleTurn(message.nextMove);
+
+            $('.last-word').removeClass('last-word');
+
+            timer.stop();
+            timer.start();
+
+            replaceChangedLetters(message.changedLetters);
+
+            if(myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
+            return;
+        }
+        if (message.action == 'OPPONENT_CHANGED_LETTERS') {
+            toggleTurn(message.nextMove);
+
+            $('.last-word').removeClass('last-word');
+
+            timer.stop();
+            timer.start();
+
+            if (myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
+            return;
+        }
+        if (message.action == 'TIME_OVER') {
+
+            var beforeToggle = myTurn;
+
+            toggleTurn(message.nextMove);
+
+            timer.stop();
+            timer.start();
+
+            $modalInfo.modal('hide');
+
+            var $letterLine = $('.letter-line');
+            $letterLine.draggable('enable');
+            $makeMoveBtn.addClass('disabled');
+
+            if (beforeToggle) {
+                $droppable.droppable('disable');
+                if (moveType === 'CHANGE_LETTERS') {
+                    $('#letter-line').tooltip('destroy');
+                    for (var i = 0; i < changedLetters.length; i++) {
+                        changedLetters[i].removeClass('selected');
+                    }
+                    $changeLettersDiv.hide('slow');
+                    $letterLine.unbind('click');
+                }
+                else if (moveType === 'MAKE_WORDS') {
+                    move = [];
+                    for (var j = 0; j < abortMove.length; j++) {
+                        moveAnimate(abortMove[j].$letter, abortMove[j].$initialParent);
+                    }
+                    $makeMoveBtn.addClass('disabled');
+                    abortMove = [];
+                    $('.move-made').removeClass('move-made');
+                }
+            }
+            if (myTurn) {
+                $changeLettersBtn.removeClass('disabled');
+                $droppable.droppable('enable');
+            }
+            return;
+        }
+        if(message.action === 'GAME_OVER') {
+            var gameResult = message.gameResult;
+
+            var $h4 = $('<h4/>');
+            if(gameResult[0].points === gameResult[1].points) {
+                $h4.text('Ничья').appendTo($('#gameover-info'));
+            }
+            else {
+                $h4.text('Победитель: ' + gameResult[0].player).appendTo($('#gameover-info'));
+            }
+
+            for(var i = 0; i < gameResult.length; i++) {
+                var $li = $('<li/>', {class: 'list-group-item'});
+                var $spanPoints = $('<span/>', {class: 'badge'}).text(gameResult[i].points);
+                var $spanPlayer = $('<span/>').text(gameResult[i].player);
+                $spanPoints.appendTo($li);
+                $spanPlayer.appendTo($li);
+                $li.appendTo($('#gameover-ul'));
+            }
+
+            $modalGameover.modal('show');
+            timer.stop();
+            return;
+        }
+        if(message.action === 'WRONG_FIRST_MOVE') {
+
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text(' Неверный первый ход!');
+            $('#modal-info-body-h5').text(message.message);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'INCORRECT_MOVES') {
+
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text(' Буквы выставлены некорректно!');
+
+            var info = message.message + ' ';
+            for(var i = 0; i < message.incorrectMoves.length; i++) {
+                info += (message.incorrectMoves[i].letter.letter + ', ');
+            }
+            info = info.slice(0, -2);
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'NO_SUCH_WORD') {
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text('Слово отсутствует в словаре!');
+
+            var info = message.message + ' ' + message.word;
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if(message.action === 'WORD_ALREADY_USED' || message.action === 'WORD_USED_TWICE') {
+            $droppable.droppable('enable');
+            $makeMoveBtn.removeClass('disabled');
+
+            $('#modal-info-header-span').text('Повторное использование слова');
+
+            var info = message.message + ' ' + message.word;
+
+            $('#modal-info-body-h5').text(info);
+            $modalInfo.modal('show');
+
+            return;
+        }
+        if (message.action == 'OPPONENT_QUIT') {
+            for(var i = 0; i < playerOpponents.length; i++) {
+                if(playerOpponents[i].username === message.opponent) {
+                    $("#opponent" + i).addClass('player-disconnected');
+                }
+            }
+            if(message.nextMove !== null) {
+                toggleTurn(message.nextMove);
+                if(myTurn) {
+                    $changeLettersBtn.removeClass('disabled');
+                    $droppable.droppable('enable');
+                }
+                timer.stop();
+                timer.start();
+            }
+        }
+    };
+
+    var fillPlayerInfo = function (opponents) {
+        $('#player-name').text(player.username);
+        $('#player-rating').text(player.rating);
+        $('#player').show('slow');
+        for (var i = 0; i < opponents.length; i++) {
+            playerOpponents[i] = opponents[i];
+            playerOpponents[i].rating = Math.round(opponents[i].rating);
+            $('#opponent' + i + '-name').text(playerOpponents[i].username);
+            $('#opponent' + i + '-rating').text(playerOpponents[i].rating);
+            $('#opponent' + i).show('slow');
+        }
+    };
+
+    var fillWordList = function (words, player) {
+
+        $('.last-word').removeClass('last-word');
+
+        var $players = $(".player-name");
+        $players.each(function () {
+            var $player = $(this);
+            if ($player.children().eq(0).text() === player) {
+                var $points = $player.next().children().eq(1);
+                $points.text(function () {
+                    var addedPoints = 0;
+                    for (var word in words) {
+                        if (words.hasOwnProperty(word)) {
+                            var $li = $('<li/>', {class: 'list-group-item', css: {'display': 'none'}});
+                            $li.addClass('last-word');
+                            var $spanValue = $('<span/>', {class: 'badge'}).text(words[word]);
+                            var $spanWord = $('<span/>').text(word);
+                            $spanValue.appendTo($li);
+                            $spanWord.appendTo($li);
+                            $li.appendTo($('#words'));
+
+                            wordPager.page($('#words'));
+
+                            addedPoints = addedPoints + parseInt(words[word]);
+                        }
+                    }
+                    return parseInt($points.text()) + addedPoints;
+                })
+            }
+        });
+    };
+
+    var replaceChangedLetters = function (newLetters) {
+        for (var i = 0; i < changedLetters.length; i++) {
+            var $letterWrapper = $('<div/>', {class: 'letter-div letter-line', css: {'display': 'none'}});
+            changedLetters[i].replaceWith($letterWrapper);
+            $('<span/>', {class: 'letter'}).text(newLetters[i].letter).appendTo($letterWrapper);
+            $('<span/>', {class: 'value'}).text(newLetters[i].value).appendTo($letterWrapper);
+            $letterWrapper.fadeIn('slow');
+            $letterWrapper.draggable({
+                stack: ".letter-line",
+                revert: 'invalid'
+            });
+        }
+    };
+
+    var fillLetterContainer = function (givenLetters) {
+        var i = 0;
+        $("div.letter-container>div:empty").each(function () {
+            var $letterWrapper = $('<div/>', {class: 'letter-div letter-line', css: {'display': 'none'}});
+            $letterWrapper.appendTo($(this));
+            $('<span/>', {class: 'letter'}).text(givenLetters[i].letter).appendTo($letterWrapper);
+            $('<span/>', {class: 'value'}).text(givenLetters[i].value).appendTo($letterWrapper);
+            $letterWrapper.fadeIn('slow');
+            $letterWrapper.draggable({
+                stack: ".letter-line",
+                revert: 'invalid'
+            });
+            i++;
+        });
+    };
+
+    var makeMove = function () {
+        if (webSocket != null) {
+
+            $makeMoveBtn.addClass('disabled');
+
+            webSocket.send(JSON.stringify({action: "PLAYER_MADE_MOVE", move: move}));
+
+            $droppable.droppable('disable');
+        }
+    };
+
+    var selectChangedLetter = function ($selectedLetter) {
+
+        $selectedLetter.addClass('selected');
+        $sendChangedLettersBtn.removeClass('disabled');
+
+        changedLetters.push($selectedLetter);
+    };
+
+    var changeLetters = function () {
+        moveType = 'CHANGE_LETTERS';
+
+        changedLetters = [];
+
+        $makeMoveBtn.addClass('disabled');
+        $changeLettersBtn.addClass('disabled');
+
+        var $letterLine = $('.letter-line');
+        $letterLine.draggable('disable');
+
+        $changeLettersDiv.show('slow');
+        $letterLine.click(function (event) {
+            var $selectedLetter = $(this);
+            selectChangedLetter($selectedLetter);
+            $selectedLetter.unbind('click');
+        });
+        $('#letter-line').tooltip('show');
+    };
+
+    var getRow = function (cell) {
+        return parseInt(cell.substring(1, cell.indexOf("c")));
+    };
+
+    var getColumn = function (cell) {
+        return parseInt(cell.substring(cell.indexOf("c") + 1));
+    };
+
+    var sendSelectedLetters = function () {
+        if (webSocket != null) {
+            var sentLetters = [];
+            $sendChangedLettersBtn.addClass('disabled');
+            $('#letter-line').tooltip('destroy');
+            $changeLettersDiv.hide('slow');
+            $droppable.droppable('disable');
+            $('.letter-line').unbind('click');
+
+            for (var i = 0; i < changedLetters.length; i++) {
+                var $letter = changedLetters[i].children(':first');
+                var $value = $letter.next();
+
+                sentLetters.push({letter: $letter.text(), value: $value.text()});
+            }
+            webSocket.send(JSON.stringify({action: 'PLAYER_CHANGED_LETTERS', letters: sentLetters}));
+        }
+    };
+
+    var cancelSelectingLetters = function () {
+        for (var i = 0; i < changedLetters.length; i++) {
+            changedLetters[i].removeClass('selected');
+        }
+        changedLetters = [];
+
+        var $letterLine = $('.letter-line');
+        $letterLine.unbind('click');
+        $letterLine.draggable('enable');
+
+        $sendChangedLettersBtn.addClass('disabled');
+        $('#letter-line').tooltip('destroy');
+        $changeLettersDiv.hide('slow');
+        $changeLettersBtn.removeClass('disabled');
+    };
+
+    $makeMoveBtn.click(makeMove);
+    $changeLettersBtn.click(changeLetters);
+
+    $sendChangedLettersBtn.click(sendSelectedLetters);
+    $cancelChangingLettersBtn.click(cancelSelectingLetters);
+
+    $('#gameover-btn').click(function() {
+        window.location.replace('http://' + window.location.host + '/start');
+        return false;
+    });
+
+    $droppable.droppable({
+        accept: function (el) {
+            return $(this).children('.letter-div').length === 0 && el.hasClass('letter-div');
+        },
+        hoverClass: "hovered",
+        disabled: true,
+        drop: function (event, ui) {
+
+            var $droppable = $(this);
+            var $draggable = ui.draggable;
+
+            var $parent = ui.draggable.parent();
+
+            moveAnimate($draggable, $droppable);
+
+            // если буква была перемещена с клетки доски (на другую клетку или назад в лоток игрока)
+            if ($parent.hasClass('game-cell')) {
+                if (!$droppable.hasClass('game-cell')) {
+                    $draggable.removeClass('move-made');
+                }
+                for (var i = 0; i < move.length; i++) {
+                    var cell = "r" + move[i].row + "c" + move[i].column;
+                    if (cell === $parent.attr('id')) {
+                        move.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+
+            // если буква была перемещена на клетку доски (с другой клетки или из лотка)
+            if ($droppable.hasClass('game-cell')) {
+                moveType = 'MAKE_WORDS';
+
+                $draggable.addClass('move-made');
+
+                var stringCell = $droppable.attr('id');
+                var row = getRow(stringCell);
+                var column = getColumn(stringCell);
+
+                var $letterSpan = $draggable.children(':first');
+                var $valueSpan = $letterSpan.next();
+
+                var cellWithLetter = {
+                    row: row,
+                    column: column,
+                    letter: {
+                        letter: $letterSpan.text(),
+                        value: $valueSpan.text()
+                    }
+                };
+                move.push(cellWithLetter);
+            }
+            var addToAbortMove = true;
+            for (var i = 0; i < abortMove.length; i++) {
+                if (abortMove[i].$letter === $draggable) {
+                    addToAbortMove = false;
+                    if (abortMove[i].$initialParent === $droppable) {
+                        abortMove.splice(i, 1);
+                        break;
+                    }
+                    break;
+                }
+            }
+            if (addToAbortMove) {
+                abortMove.push({
+                    $letter: $draggable,
+                    $initialParent: $parent
+                });
+            }
+            if (move.length > 0) {
+                $makeMoveBtn.removeClass('disabled');
+                $changeLettersBtn.addClass('disabled');
+            }
+            else {
+                $makeMoveBtn.addClass('disabled');
+                $changeLettersBtn.removeClass('disabled');
+            }
+        }
+    });
+});

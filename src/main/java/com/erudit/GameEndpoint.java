@@ -47,7 +47,7 @@ public class GameEndpoint {
                 session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                         "Произошла ошибка"));
             } catch (IOException e) {
-                LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
+                LOGGER.error(e);;
             }
         }
         else {
@@ -57,16 +57,15 @@ public class GameEndpoint {
                     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                             "Произошла ошибка"));
                 } catch (IOException e) {
-                    LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
+                    LOGGER.error(e);;
                 }
-            }
-            else {
+            } else {
                 if(player.getPlayerStatus() != PlayerStatus.REDIRECTING) {
                     try {
                         session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                                 "Произошла ошибка"));
                     } catch (IOException e) {
-                        LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
+                        LOGGER.error(e);;
                     }
                 }
                 else
@@ -82,6 +81,8 @@ public class GameEndpoint {
 
     @OnClose
     public void onClose(Session session) {
+
+        LOGGER.error("Stuff went wrong", new Exception("Stracktracegenerator"));
 
         closeSession(session);
     }
@@ -101,10 +102,9 @@ public class GameEndpoint {
                 session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE,
                         "Произошла ошибка"));
             } catch (IOException e) {
-                LOGGER.warn("Ошибка при закрытии Websocket-сессии.");
+                LOGGER.error(e);;
             }
-        }
-        else {
+        } else {
             if("PLAYER_MADE_MOVE".equalsIgnoreCase(clientMessage.getAction())) {
                 List<Move> moves = clientMessage.getMove();
 
@@ -120,7 +120,7 @@ public class GameEndpoint {
 
     @OnError
     public void onError(Session session, Throwable e) {
-        LOGGER.warn("Произошла ошибка WebSocket-сессии", e);
+        LOGGER.error(e);
         try {
             if(session.isOpen()) {
                 session.close(new CloseReason(
