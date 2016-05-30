@@ -81,9 +81,7 @@ public class GameEndpoint {
 
     @OnClose
     public void onClose(Session session) {
-
-        LOGGER.error("Stuff went wrong", new Exception("Stracktracegenerator"));
-
+        LOGGER.info("Websocket session " + session.getId() + " closed.");
         closeSession(session);
     }
 
@@ -132,6 +130,18 @@ public class GameEndpoint {
         finally {
             LOGGER.exit();
         }
+    }
+
+    public static Map<Long, Game> getActiveGames() {
+        return activeGames;
+    }
+
+    public static Map<Long, Game> getRedirectingGames() {
+        return redirectingGames;
+    }
+
+    public static Map<Session, Game> getAllSessions() {
+        return allSessions;
     }
 
     public static void addRedirectingGame(long gameId, Game game) {

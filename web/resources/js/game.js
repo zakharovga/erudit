@@ -646,9 +646,20 @@ $(document).ready(function () {
     $cancelChangingLettersBtn.click(cancelSelectingLetters);
 
     $('#gameover-btn').click(function() {
-        window.location.replace('http://' + window.location.host + '/start');
+        var url = window.location.pathname.split('/');
+        url.splice(-1, 1);
+        var str = '';
+        for(var i = 0; i < url.length; i++) {
+            str += url[i];
+        }
+        window.location.replace('http://' + window.location.host + str + '/start');
         return false;
     });
+
+    var url = window.location.pathname.split('/');
+
+    console.log(window.location.pathname);
+    console.log(url);
 
     $droppable.droppable({
         accept: function (el) {

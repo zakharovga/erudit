@@ -19,4 +19,12 @@ public class SessionRegistry {
     public static void addSession(Session session, HttpSession httpSession) {
         sessions.put(session, httpSession);
     }
+
+    public static Map<Session, HttpSession> getSessions() {
+        return sessions;
+    }
+
+    public static void removeSession(Session session) {
+        sessions.remove(session);
+    }
 }

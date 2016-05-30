@@ -151,15 +151,13 @@ public class Game {
 
     public void disconnectPlayer(Session session) {
         synchronized (lock) {
-
-            LOGGER.info("INSIDE DISCONNECTING PLAYER");
-
             Player player = getPlayer(session);
             String username = player.getUsername();
 
             removeSession(session);
             GameEndpoint.removeSession(session);
             GameEndpoint.removeUsername(username);
+            SessionRegistry.removeSession(session);
 
             HttpSession httpSession = SessionRegistry.getHttpSession(session);
             if(httpSession != null) {
