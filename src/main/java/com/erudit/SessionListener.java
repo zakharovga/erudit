@@ -10,8 +10,6 @@ import javax.servlet.http.HttpSessionListener;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
