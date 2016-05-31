@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Erudit :: Online</title>
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <link rel="stylesheet" href="<c:url value="/resources/css/bootstrap.custom.min.css" />"/>
@@ -23,7 +24,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="<c:url value="/" />">Erudit.ru</a>
+            <a class="navbar-brand" href="<c:url value="/" />">Online-erudit.ru</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -49,29 +50,42 @@
 </nav>
 <div class="container">
     <div class="jumbotron">
-        <h1>Erudit.ru</h1>
-        <p>Интернет-портал для игры в эрудит. Авторизируйтесь или начните игру как гость.</p>
-        <div class="btn-group btn-group-justified">
-            <a href="<c:url value="/register" />" class="btn btn-primary btn-lg"><strong>Зарегистрироваться</strong></a>
-            <a href="<c:url value="/start" />" class="btn btn-default btn-lg"><strong>Играть как гость</strong></a>
-        </div>
-        <form method="post" action="login" class="form-signin">
-            <h2 class="form-signin-heading">Вход</h2>
+        <h1>Online-erudit.ru</h1>
+        <p>Интернет-портал для игры в эрудит.</p>
+        <br>
 
-            <label for="email-input" class="sr-only">Email</label>
-            <input name="email" type="email" id="email-input" class="form-control" placeholder="Email" required autofocus>
-            <label for="password-input" class="sr-only">Password</label>
-            <input name="password" type="password" id="password-input" class="form-control" placeholder="Пароль" required>
-            <c:if test="${not empty requestScope.loginError}">
-                <label id="login-error-msg" class="error-msg" for="email-input">Ошибка в email или пароле</label>
-            </c:if>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" value="remember-me"> Запомнить
-                </label>
-            </div>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
-        </form>
+        <c:choose>
+            <c:when test="${user.guest}">
+                <form method="post" action="login" class="form-signin">
+                    <label for="email-input" class="sr-only">Email</label>
+                    <input name="email" type="email" id="email-input" class="form-control" placeholder="Email" required autofocus>
+                    <label for="password-input" class="sr-only">Password</label>
+                    <input name="password" type="password" id="password-input" class="form-control" placeholder="Пароль" required>
+                    <c:if test="${not empty requestScope.loginError}">
+                        <label id="login-error-msg" class="error-msg" for="email-input">Ошибка в email или пароле</label>
+                    </c:if>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" value="remember-me"> Запомнить
+                        </label>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+                </form>
+                <br>
+                <p>Зарегистрируйтесь или начните игру как гость (без рейтинга)</p>
+                <br>
+
+                <div class="btn-group btn-group-justified">
+                    <a href="<c:url value="/register" />" class="btn btn-primary btn-lg"><strong>Зарегистрироваться</strong></a>
+                    <a href="<c:url value="/start" />" class="btn btn-default btn-lg"><strong>Играть как гость</strong></a>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <p><i>${user.username}, добро пожаловать!</i></p>
+                <br>
+                <a href="<c:url value="/start" />" class="btn btn-primary btn-lg btn-block"><strong>Играть!</strong></a>
+            </c:otherwise>
+        </c:choose>
     </div>
 </div>
 </body>

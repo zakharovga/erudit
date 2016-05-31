@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Erudit</title>
+    <title>Erudit :: Online</title>
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
@@ -24,7 +24,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="<c:url value="/" />">Erudit.ru</a>
+            <a class="navbar-brand" href="<c:url value="/" />">Online-erudit.ru</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">

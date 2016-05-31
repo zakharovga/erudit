@@ -24,7 +24,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="<c:url value="/" />">Erudit.ru</a>
+            <a class="navbar-brand" href="<c:url value="/" />">Online-erudit.ru</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -52,7 +52,7 @@
     <div class="jumbotron">
         <form id="register-form" method="post" action="register" class="form-horizontal">
             <fieldset>
-                <legend>Регистрация на портале Erudit.ru</legend>
+                <legend>Регистрация на портале Online-erudit.ru</legend>
                 <div id="email-form-group" class="form-group has-feedback">
                     <label for="email-input" class="col-lg-3 control-label">Email</label>
                     <div class="col-lg-12">

@@ -23,7 +23,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="<c:url value="/" />">Erudit.ru</a>
+            <a class="navbar-brand" href="<c:url value="/" />">Online-erudit.ru</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -50,7 +50,7 @@
 
 <div class="container">
     <div class="jumbotron">
-        <h1>Erudit.ru</h1>
+        <h1>Online-erudit.ru</h1>
         <p>Создайте игру или присоединитесь к уже созданной.</p>
         <div>
             <a href="#" id="create-game-btn" class="btn btn-primary btn-lg btn-block">Создать игру</a>
